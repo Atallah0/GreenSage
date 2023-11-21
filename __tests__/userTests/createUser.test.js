@@ -69,11 +69,19 @@ describe('createUser', () => {
         );
     });
 
+    // it('should handle unexpected errors', async () => {
+    //     User.findOne.mockRejectedValue(new Error('Some unexpected error'));
+
+    //     await createUser(req, res, next);
+
+    //     expect(next).toHaveBeenCalledWith(new Error('Some unexpected error'));
+    // });
+
     it('should handle unexpected errors', async () => {
-        User.findOne.mockRejectedValue(new Error('Some unexpected error'));
+        User.findOne.mockRejectedValue(createCustomError('Some unexpected error'));
 
         await createUser(req, res, next);
 
-        expect(next).toHaveBeenCalledWith(new Error('Some unexpected error'));
+        expect(next).toHaveBeenCalledWith(createCustomError('Some unexpected error'));
     });
 });
