@@ -1,84 +1,79 @@
-const mongoose = require('mongoose');
-const request = require('supertest');
+// userController.test.js
 const { createUser } = require('../../controllers/userController');
 const User = require('../../models/userModel');
-const process = require('process');
-require('dotenv').config();
+const { createCustomError } = require('../../utils/customError');
 
+jest.mock('../../models/userModel'); // Mock the User model
 
-describe('createUser API', () => {
-    // beforeAll(async () => {
-    //     await mongoose.connect(process.env.MONGO_URI, {
-    //         useNewUrlParser: true,
-    //         useUnifiedTopology: true,
-    //     });
-    // });
+describe('createUser', () => {
+    const req = {
+        body: {
+            name: 'John Doe',
+            email: 'john.doe@example.com',
+        },
+    };
 
-    // afterAll(async () => {
-    //     await mongoose.connection.close();
-    // });
+    const res = {
+        status: jest.fn(() => res),
+        json: jest.fn(),
+    };
 
-    // beforeEach(async () => {
-    //     await User.deleteMany();
-    // });
-    it('should create a new user successfully', async () => {
-        const response = await request(createUser)
-            .post('/api/users')
-            .send({ name: 'John Doe', email: 'johndoe@example.com' });
+    const next = jest.fn();
 
-        expect(response.statusCode).toBe(201);
-        expect(response.body).toEqual({
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it('should create a user and return success response', async () => {
+        User.findOne.mockResolvedValue(null); // Mock that no user with the same email exists
+        User.create.mockResolvedValue({
+            name: 'John Doe',
+            email: 'john.doe@example.com',
+        });
+
+        await createUser(req, res, next);
+
+        expect(res.status).toHaveBeenCalledWith(201);
+        expect(res.json).toHaveBeenCalledWith({
             msg: 'User created successfully',
             success: true,
             data: {
                 name: 'John Doe',
-                email: 'johndoe@example.com',
-                _id: expect.any(String),
+                email: 'john.doe@example.com',
             },
         });
     });
 
-    it('should not create a user if name is missing', async () => {
-        const response = await request(createUser)
-            .post('/api/users')
-            .send({ email: 'johndoe@example.com' });
-
-        expect(response.statusCode).toBe(400);
-        expect(response.body).toEqual({
-            error: {
-                message: 'Please provide both name and email',
-                statusCode: 400,
-            },
+    it('should handle error if user with the same email exists', async () => {
+        User.findOne.mockResolvedValue({
+            name: 'Existing User',
+            email: 'john.doe@example.com',
         });
+
+        await createUser(req, res, next);
+
+        expect(next).toHaveBeenCalledWith(
+            createCustomError('Email already exists', 400)
+        );
     });
 
-    it('should not create a user if email is missing', async () => {
-        const response = await request(createUser)
-            .post('/api/users')
-            .send({ name: 'John Doe' });
+    it('should handle error if name or email is missing', async () => {
+        const invalidReq = {
+            body: {},
+        };
 
-        expect(response.statusCode).toBe(400);
-        expect(response.body).toEqual({
-            error: {
-                message: 'Please provide both name and email',
-                statusCode: 400,
-            },
-        });
+        await createUser(invalidReq, res, next);
+
+        expect(next).toHaveBeenCalledWith(
+            createCustomError('Please provide both name and email', 400)
+        );
     });
 
-    it('should not create a user if email already exists', async () => {
-        await User.create({ name: 'Jane Doe', email: 'janedoe@example.com' });
+    it('should handle unexpected errors', async () => {
+        User.findOne.mockRejectedValue(new Error('Some unexpected error'));
 
-        const response = await request(createUser)
-            .post('/api/users')
-            .send({ name: 'John Doe', email: 'janedoe@example.com' });
+        await createUser(req, res, next);
 
-        expect(response.statusCode).toBe(400);
-        expect(response.body).toEqual({
-            error: {
-                message: 'Email already exists',
-                statusCode: 400,
-            },
-        });
+        expect(next).toHaveBeenCalledWith(new Error('Some unexpected error'));
     });
 });

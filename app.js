@@ -33,4 +33,20 @@ const start = async () => {
         console.log(error);
     }
 }
-start()
+start();
+
+// const start = async () => {
+//     try {
+//       const MONGO_URL = process.env.NODE_ENV === 'development'
+//         ? process.env.DEV_MONGO_URL
+//         : process.env.PROD_MONGO_URL;
+  
+//       await connectDB(MONGO_URL);
+//       app.listen(PORT, () => {
+//         console.log(`Server is listening on port ${PORT}...`);
+//       });
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   };
+// start();
