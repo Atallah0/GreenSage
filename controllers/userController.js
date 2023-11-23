@@ -4,12 +4,12 @@ const { createCustomError } = require('../utils/customError');
 const mongoose = require('mongoose');
 
 // createUser Endpoint/API
-const createUser = asyncWrapper(async (req, res, next) => {
-    const { name, email } = req.body;
+const createUser = async (req, res, next) => {
+    const { firstName, lastName, email, mobile, addresses } = req.body;
 
-    if (!name || !email) {
-        console.log('Missing name or email');
-        return next(createCustomError('Please provide both name and email', 400));
+    if (!firstName || !lastName || !email || !mobile || !addresses) {
+        console.log('Missing required fields');
+        return next(createCustomError('Please provide all required fields', 400));
     }
 
     const existingUser = await User.findOne({ email });
@@ -18,7 +18,20 @@ const createUser = asyncWrapper(async (req, res, next) => {
         return next(createCustomError('Email already exists', 400));
     }
 
-    const user = await User.create({ name, email });
+    const userAddresses = addresses.map(address => ({
+        street: address.street,
+        postalCode: address.postalCode,
+        state: address.state,
+        city: address.city,
+    }));
+
+    const user = await User.create({
+        firstName,
+        lastName,
+        email,
+        mobile,
+        addresses: userAddresses,
+    });
 
     console.log('User created successfully');
     res.status(201).json({
@@ -26,7 +39,36 @@ const createUser = asyncWrapper(async (req, res, next) => {
         success: true,
         data: user,
     });
-});
+};
+
+// // addAddress Endpoint/API
+// const addAddress = asyncWrapper(async (req, res, next) => {
+//     const { id: userID } = req.params;
+//     const { street, postalCode, state, city } = req.body;
+
+//     const user = await User.findById(userID);
+//     if (!user) {
+//         return next(createCustomError('User not found', 404));
+//     }
+
+//     const newAddress = {
+//         street,
+//         postalCode,
+//         state,
+//         city,
+//     };
+
+//     user.addresses.push(newAddress);
+//     await user.save();
+
+//     res.status(200).json({
+//         msg: 'Address added successfully',
+//         success: true,
+//         data: user,
+//     });
+// });
+
+
 
 // getUsers Endpoint/API
 const getUsers = asyncWrapper(async (req, res, next) => {
@@ -123,7 +165,7 @@ const deleteUser = asyncWrapper(async (req, res, next) => {
     }
 
     await user.deleteOne();
-    
+
     res.status(200).json({
         msg: `user deleted successfully`,
         success: true
@@ -135,5 +177,5 @@ module.exports = {
     getUsers,
     getUser,
     updateUser,
-    deleteUser
+    deleteUser,
 };

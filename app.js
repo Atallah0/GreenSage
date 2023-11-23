@@ -10,6 +10,7 @@ const errorHandler = require('./middleware/errorHandler')
 
 // Routers
 const users = require('./routes/userRoutes')
+const addresses = require('./routes/addressRoutes')
 
 // Middlewares
 app.use(express.urlencoded({ extended: true }))
@@ -17,6 +18,7 @@ app.use(express.json())
 
 // Routes Middleware
 app.use('/api/users', users)
+app.use('/api/addresses', addresses)
 
 // M
 app.use(notFound);
@@ -34,6 +36,12 @@ const start = async () => {
     }
 }
 start();
+
+
+
+
+
+
 
 // const start = async () => {
 //     try {
