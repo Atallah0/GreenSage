@@ -22,7 +22,7 @@ describe('getUser', () => {
 
     it('should fetch a user by ID and return success response', async () => {
         const mockUser = { _id: '637991340633659227958f74', name: 'John Doe', email: 'johndoe@example.com' };
-        User.findOne.mockResolvedValue(mockUser);
+        User.findById.mockResolvedValue(mockUser); // Use findById instead of findOne
 
         await getUser(req, res, next);
 
@@ -40,5 +40,14 @@ describe('getUser', () => {
         await getUser(req, res, next);
 
         expect(next).toHaveBeenCalledWith(createCustomError('Invalid user ID: invalid_user_id', 400));
+    });
+
+    it('should handle user not found', async () => {
+        req.params.id = '637991340633659227958f74'; // Valid ObjectId
+        User.findById.mockResolvedValue(null);
+
+        await getUser(req, res, next);
+
+        expect(next).toHaveBeenCalledWith(createCustomError('No user with id: 637991340633659227958f74', 404));
     });
 });

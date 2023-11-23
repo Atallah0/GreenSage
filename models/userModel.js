@@ -13,12 +13,6 @@ const UserSchema = new mongoose.Schema({
         trim: true,
         unique: [true, 'Email already exists']
     }
-    // age: {
-    //     type: Number,
-    //     default: 0,
-    //     min: [0, 'Age can not be in minus'],
-    //     max: [120, 'Age can not be more than 120 years'],
-    // }
 });
 
 module.exports = mongoose.model('User', UserSchema);

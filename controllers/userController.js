@@ -47,7 +47,13 @@ const getUser = asyncWrapper(async (req, res, next) => {
         return next(createCustomError(`Invalid user ID: ${userID}`, 400));
     }
 
-    const user = await User.findOne({ _id: userID })
+    // const user = await User.findOne({ _id: userID })
+    const user = await User.findById(userID);
+
+    // Check if the user exists
+    if (!user) {
+        return next(createCustomError(`No user with id: ${userID}`, 404));
+    }
 
     res.status(200).json({
         msg: 'User fetched successfully',
@@ -67,6 +73,11 @@ const updateUser = asyncWrapper(async (req, res, next) => {
 
     // Fetch the existing user data
     const existingUser = await User.findById(userID);
+
+    // Check if the user exists
+    if (!existingUser) {
+        return next(createCustomError(`No user with id: ${userID}`, 404));
+    }
 
     // Extract only "name" and "email" properties for comparison
     const existingUserData = {
@@ -104,13 +115,15 @@ const deleteUser = asyncWrapper(async (req, res, next) => {
         return next(createCustomError(`Invalid user ID: ${userID}`, 400));
     }
 
-    const deleteUser = await User.findByIdAndDelete({ _id: userID })
+    const user = await User.findById(userID)
 
     // Check if the user exists
-    if (!deleteUser) {
+    if (!user) {
         return next(createCustomError(`No user with id: ${userID}`, 404));
     }
 
+    await user.deleteOne();
+    
     res.status(200).json({
         msg: `user deleted successfully`,
         success: true
