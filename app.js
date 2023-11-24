@@ -11,6 +11,7 @@ const errorHandler = require('./middleware/errorHandler')
 // Routers
 const users = require('./routes/userRoutes')
 const addresses = require('./routes/addressRoutes')
+const categories = require('./routes/categoryRoutes')
 
 // Middlewares
 app.use(express.urlencoded({ extended: true }))
@@ -19,6 +20,8 @@ app.use(express.json())
 // Routes Middleware
 app.use('/api/users', users)
 app.use('/api/addresses', addresses)
+app.use('/api/categories', categories)
+
 
 // M
 app.use(notFound);

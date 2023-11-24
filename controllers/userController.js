@@ -4,7 +4,7 @@ const { createCustomError } = require('../utils/customError');
 const mongoose = require('mongoose');
 
 // createUser Endpoint/API
-const createUser = async (req, res, next) => {
+const createUser = asyncWrapper(async (req, res, next) => {
     const { firstName, lastName, email, mobile, addresses } = req.body;
 
     if (!firstName || !lastName || !email || !mobile || !addresses) {
@@ -39,7 +39,7 @@ const createUser = async (req, res, next) => {
         success: true,
         data: user,
     });
-};
+});
 
 // // addAddress Endpoint/API
 // const addAddress = asyncWrapper(async (req, res, next) => {
