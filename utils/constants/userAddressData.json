@@ -1,24 +1,43 @@
-{
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "johndoe@example.com",
-  "mobile": "+1234567890",
-  "addresses": [
-    {
-      "street": "123 Main Street",
-      "postalCode": "98765",
-      "state": "CA",
-      "city": "San Francisco",
-      "_id": "6561586857cd62784448e982"
-    },
-    {
-      "street": "456 Oak Avenue",
-      "postalCode": "54321",
-      "state": "NY",
-      "city": "New York",
-      "_id": "6561586857cd62784448e983"
-    }
-  ],
-  "_id": "6561586857cd62784448e981",
-  "__v": 0
-}
+[
+  {
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "johndoe@example.com",
+    "mobile": "+1234567890",
+    "addresses": [
+      {
+        "street": "123 Main Street",
+        "postalCode": "98765",
+        "state": "CA",
+        "city": "San Francisco",
+        "_id": "6561586857cd62784448e982"
+      },
+      {
+        "street": "456 Oak Avenue",
+        "postalCode": "54321",
+        "state": "NY",
+        "city": "New York",
+        "_id": "6561586857cd62784448e983"
+      }
+    ],
+    "_id": "6561586857cd62784448e981",
+    "__v": 0
+  },
+  {
+    "firstName": "Jane",
+    "lastName": "Doe",
+    "email": "janedoe@example.com",
+    "mobile": "+9876543210",
+    "addresses": [
+      {
+        "street": "789 Elm Blvd",
+        "postalCode": "12345",
+        "state": "TX",
+        "city": "Houston",
+        "_id": "656218f3cbfec5abce02bfd4"
+      }
+    ],
+    "_id": "656218f3cbfec5abce02bfd5",
+    "__v": 0
+  }
+]

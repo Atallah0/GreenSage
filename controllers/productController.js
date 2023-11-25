@@ -20,6 +20,12 @@ const createProduct = asyncWrapper(async (req, res, next) => {
         return next(createCustomError('Product with the same title and description already exists', 400));
     }
 
+    const category = await Category.findById(categoryId);
+
+    if (!category) {
+        return next(createCustomError('Category does notexist', 400));
+    }
+
     const product = await Product.create(req.body);   // Or
     // const product = await Product.create({
     //     title,
@@ -32,9 +38,7 @@ const createProduct = asyncWrapper(async (req, res, next) => {
     // });
 
     // Update the associated category with the new product reference
-    // const category = await Category.findByIdAndUpdate(   Or
-    await Category.findByIdAndUpdate(
-        categoryId,
+    await category.updateOne(
         { $push: { products: product._id } },
         { new: true }
     );
@@ -147,6 +151,10 @@ const deleteProduct = asyncWrapper(async (req, res, next) => {
 
     // Get the categoryId of the product
     const categoryId = existingProduct.categoryId;
+
+    if (!categoryId) {
+        return next(createCustomError('Category does notexist', 400));
+    }
 
     // Remove the product reference from the associated category
     await Category.findByIdAndUpdate(

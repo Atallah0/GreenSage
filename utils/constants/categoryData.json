@@ -1,0 +1,30 @@
+[
+    {
+        "_id": "6562283c3e6dfff45bca24e1",
+        "name": "Herbs",
+        "description": "This is Herbs description",
+        "products": [],
+        "__v": 0
+    },
+    {
+        "_id": "656228593e6dfff45bca24e3",
+        "name": "vegetables",
+        "description": "This is vegetables description",
+        "products": [],
+        "__v": 0
+    },
+    {
+        "_id": "6562286f3e6dfff45bca24e5",
+        "name": "fruits",
+        "description": "This is fruits description",
+        "products": [],
+        "__v": 0
+    },
+    {
+        "_id": "656228763e6dfff45bca24e7",
+        "name": "others",
+        "description": "This is others description",
+        "products": [],
+        "__v": 0
+    }
+]

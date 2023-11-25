@@ -1,0 +1,152 @@
+[
+    {
+        "_id": "6562321e19dcd42e597b0ddc",
+        "title": "Basil",
+        "description": "Fresh basil leaves",
+        "price": {
+            "$numberDecimal": "2.99"
+        },
+        "availableInStock": 50,
+        "rating": {
+            "$numberDecimal": "4.5"
+        },
+        "imageUrl": "https://example.com/basil.jpg",
+        "categoryId": "6562283c3e6dfff45bca24e1",
+        "__v": 0
+    },
+    {
+        "_id": "656232a519dcd42e597b0de1",
+        "title": "Tomato",
+        "description": "Ripe red tomatoes",
+        "price": {
+            "$numberDecimal": "1.49"
+        },
+        "availableInStock": 100,
+        "rating": {
+            "$numberDecimal": "3.8"
+        },
+        "imageUrl": "https://example.com/tomato.jpg",
+        "categoryId": "656228593e6dfff45bca24e3",
+        "__v": 0
+    },
+    {
+        "_id": "656232b119dcd42e597b0de6",
+        "title": "Apple",
+        "description": "Sweet and crisp apples",
+        "price": {
+            "$numberDecimal": "0.99"
+        },
+        "availableInStock": 75,
+        "rating": {
+            "$numberDecimal": "4.2"
+        },
+        "imageUrl": "https://example.com/apple.jpg",
+        "categoryId": "6562286f3e6dfff45bca24e5",
+        "__v": 0
+    },
+    {
+        "_id": "656232bb19dcd42e597b0deb",
+        "title": "Avocado",
+        "description": "Creamy avocados",
+        "price": {
+            "$numberDecimal": "2.49"
+        },
+        "availableInStock": 30,
+        "rating": {
+            "$numberDecimal": "4"
+        },
+        "imageUrl": "https://example.com/avocado.jpg",
+        "categoryId": "656228593e6dfff45bca24e3",
+        "__v": 0
+    },
+    {
+        "_id": "656232c319dcd42e597b0df0",
+        "title": "Carrot",
+        "description": "Fresh orange carrots",
+        "price": {
+            "$numberDecimal": "0.79"
+        },
+        "availableInStock": 120,
+        "rating": {
+            "$numberDecimal": "3.5"
+        },
+        "imageUrl": "https://example.com/carrot.jpg",
+        "categoryId": "656228593e6dfff45bca24e3",
+        "__v": 0
+    },
+    {
+        "_id": "656232cb19dcd42e597b0df5",
+        "title": "Banana",
+        "description": "Yellow bananas",
+        "price": {
+            "$numberDecimal": "0.69"
+        },
+        "availableInStock": 80,
+        "rating": {
+            "$numberDecimal": "4.8"
+        },
+        "imageUrl": "https://example.com/banana.jpg",
+        "categoryId": "6562286f3e6dfff45bca24e5",
+        "__v": 0
+    },
+    {
+        "_id": "656232d419dcd42e597b0dfa",
+        "title": "Cucumber",
+        "description": "Crisp cucumbers",
+        "price": {
+            "$numberDecimal": "1.29"
+        },
+        "availableInStock": 60,
+        "rating": {
+            "$numberDecimal": "3.9"
+        },
+        "imageUrl": "https://example.com/cucumber.jpg",
+        "categoryId": "656228593e6dfff45bca24e3",
+        "__v": 0
+    },
+    {
+        "_id": "656232dd19dcd42e597b0dff",
+        "title": "Orange",
+        "description": "Juicy oranges",
+        "price": {
+            "$numberDecimal": "1.19"
+        },
+        "availableInStock": 90,
+        "rating": {
+            "$numberDecimal": "4.6"
+        },
+        "imageUrl": "https://example.com/orange.jpg",
+        "categoryId": "6562286f3e6dfff45bca24e5",
+        "__v": 0
+    },
+    {
+        "_id": "656232e519dcd42e597b0e04",
+        "title": "Spinach",
+        "description": "Nutrient-rich spinach",
+        "price": {
+            "$numberDecimal": "2.79"
+        },
+        "availableInStock": 40,
+        "rating": {
+            "$numberDecimal": "4.1"
+        },
+        "imageUrl": "https://example.com/spinach.jpg",
+        "categoryId": "6562283c3e6dfff45bca24e1",
+        "__v": 0
+    },
+    {
+        "_id": "656232ef19dcd42e597b0e09",
+        "title": "Mango",
+        "description": "Sweet and tropical mangoes",
+        "price": {
+            "$numberDecimal": "3.49"
+        },
+        "availableInStock": 25,
+        "rating": {
+            "$numberDecimal": "4.7"
+        },
+        "imageUrl": "https://example.com/mango.jpg",
+        "categoryId": "6562286f3e6dfff45bca24e5",
+        "__v": 0
+    }
+]
