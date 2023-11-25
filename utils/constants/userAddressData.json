@@ -1,0 +1,24 @@
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "johndoe@example.com",
+  "mobile": "+1234567890",
+  "addresses": [
+    {
+      "street": "123 Main Street",
+      "postalCode": "98765",
+      "state": "CA",
+      "city": "San Francisco",
+      "_id": "6561586857cd62784448e982"
+    },
+    {
+      "street": "456 Oak Avenue",
+      "postalCode": "54321",
+      "state": "NY",
+      "city": "New York",
+      "_id": "6561586857cd62784448e983"
+    }
+  ],
+  "_id": "6561586857cd62784448e981",
+  "__v": 0
+}

@@ -1,0 +1,18 @@
+[
+    {
+        "_id": "6561586857cd62784448e981",
+        "street": "789 Elm Blvd",
+        "postalCode": "12345",
+        "state": "TX",
+        "city": "Houston",
+        "__v": 0
+    },
+    {
+        "_id": "6561586857cd62784448e982",
+        "street": "987 Pine Street",
+        "postalCode": "56789",
+        "state": "CA",
+        "city": "Los Angeles",
+        "__v": 0
+    }
+]
