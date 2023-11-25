@@ -11,7 +11,7 @@ const createUser = asyncWrapper(async (req, res, next) => {
         console.log('Missing required fields');
         return next(createCustomError('Please provide all required fields', 400));
     }
-
+    // Check if email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
         console.log('Duplicate email');
@@ -123,8 +123,12 @@ const updateUser = asyncWrapper(async (req, res, next) => {
 
     // Extract only "name" and "email" properties for comparison
     const existingUserData = {
-        name: existingUser.name,
+        firstName: existingUser.firstName,
+        lastName: existingUser.lastName,
         email: existingUser.email,
+        mobile: existingUser.mobile,
+        // addresses: existingUser.addresses
+
     };
 
     // Check if the req.body is the same as existing user data
@@ -132,8 +136,8 @@ const updateUser = asyncWrapper(async (req, res, next) => {
         return next(createCustomError('Nothing to update', 400))
     }
 
-    // console.log(JSON.stringify(existingUser.toObject()));
-    // console.log(JSON.stringify(req.body));
+    console.log(JSON.stringify(existingUserData));
+    console.log(JSON.stringify(req.body));
 
     // Update the user data
     const updatedUser = await User.findOneAndUpdate({ _id: userID }, req.body, {
@@ -164,6 +168,7 @@ const deleteUser = asyncWrapper(async (req, res, next) => {
         return next(createCustomError(`No user with id: ${userID}`, 404));
     }
 
+    // const deletedUser = await user.deleteOne(); Or
     await user.deleteOne();
 
     res.status(200).json({

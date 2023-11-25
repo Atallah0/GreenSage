@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 
+const imageURLRegex = /^(http|https):\/\/(www\.)?(.*)\.(?:jpeg|jpg|png|gif)$/i;
+
 const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
@@ -37,8 +39,16 @@ const userSchema = new mongoose.Schema({
     // },
     // imageUrl: {
     //     type: String,
-    //     required: true,
+    //     required: [true, `ImageUrl can not be empty`],
+    //     trim: true,
+    //     validate: [
+    //         {
+    //             validator: (value) => imageURLRegex.test(value),
+    //             message: `Invalid image URL format`,
+    //         },
+    //     ],
     // },
+
     // role: {
     //     type: String,
     //     required: true,
@@ -64,13 +74,6 @@ const userSchema = new mongoose.Schema({
             },
         },
     ],
-    fullName: {
-        type: String,
-        virtual: true,
-        get: function () {
-            return `${this.firstName} ${this.lastName}`;
-        },
-    },
 });
 
 module.exports = mongoose.model('User', userSchema);

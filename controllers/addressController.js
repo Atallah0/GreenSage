@@ -35,6 +35,7 @@ const getAddresses = async (req, res, next) => {
     const { id: userId } = req.params;
 
     const user = await User.findById(userId);
+
     if (!user) {
         return next(createCustomError('User not found', 404));
     }
@@ -88,6 +89,22 @@ const updateAddress = async (req, res, next) => {
         return next(createCustomError('Address not found', 404));
     }
 
+    const addressData = {
+        street: address.street,
+        postalCode: address.postalCode,
+        state: address.state,
+        city: address.city,
+    }
+
+    // Check if the req.body is the same as existing address data
+    if (JSON.stringify(addressData) === JSON.stringify(req.body)) {
+        return next(createCustomError('Nothing to update', 400))
+    }
+
+    console.log(JSON.stringify(addressData));
+    console.log(JSON.stringify(req.body));
+
+    // address.street = street;  or 
     address.street = street || address.street;
     address.postalCode = postalCode || address.postalCode;
     address.state = state || address.state;
