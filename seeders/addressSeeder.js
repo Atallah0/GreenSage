@@ -8,17 +8,23 @@ async function seedAddresses() {
     try {
         await client.connect();
 
-        const userId = '65615e50943599dfa17008fe';
+        const userId = '6561586857cd62784448e981';
+        const additionalAddressesWithObjectIds = additionalAddressesData.map((address) => {
+            return {
+                ...address,
+                _id: new ObjectId(address._id),
+            };
+        });
 
         const usersCollection = client.db('Gorceriesdb').collection('users');
 
-        const result = await usersCollection.updateOne(
+        // const result = await usersCollection.updateOne(
+        await usersCollection.updateOne(
             { _id: new ObjectId(userId) },
-            { $push: { addresses: { $each: additionalAddressesData } } }
+            { $push: { addresses: { $each: additionalAddressesWithObjectIds } } },
         );
 
         console.log('Addresses data seeded successfully.');
-
     } catch (err) {
         console.error(err);
     } finally {
@@ -27,3 +33,4 @@ async function seedAddresses() {
 }
 
 seedAddresses();
+module.exports = seedAddresses;
