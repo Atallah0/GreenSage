@@ -85,6 +85,7 @@ const getProduct = asyncWrapper(async (req, res, next) => {
     })
 });
 
+
 // updateProduct Endpoint/API
 const updateProduct = asyncWrapper(async (req, res, next) => {
     const { id: productId } = req.params;
@@ -94,12 +95,12 @@ const updateProduct = asyncWrapper(async (req, res, next) => {
         return next(createCustomError(`Invalid productId ID: ${productId}`, 400));
     }
 
-    // const existingProduct = await Product.findById(productId);
+    const existingProduct = await Product.findById(productId);
 
-    // // Check if the productId exists
-    // if (!existingProduct) {
-    //     return next(createCustomError(`No product with id: ${productId}`, 404));
-    // }
+    // Check if the productId exists
+    if (!existingProduct) {
+        return next(createCustomError(`No product with id: ${productId}`, 404));
+    }
 
     // const existingProductData = {
     //     title: existingProduct.title,
@@ -124,6 +125,28 @@ const updateProduct = asyncWrapper(async (req, res, next) => {
         new: true,
         runValidators: true
     })
+
+    // The approach to update the productId in Category
+    // Get the categoryId of the product
+    const categoryId = existingProduct.categoryId;
+
+    if (!categoryId) {
+        return next(createCustomError('Category does notexist', 400));
+    }
+
+    // Remove the product reference from the associated category
+    await Category.findByIdAndUpdate(
+        categoryId,
+        { $pull: { products: productId } },
+        { new: true }
+    );
+
+    // Update the associated category with the new product reference
+    await Category.updateOne(
+        { _id: req.body.categoryId },
+        { $push: { products: productId } },
+        { new: true }
+    );
 
     res.status(200).json({
         msg: `Product updated successfully`,

@@ -2,7 +2,7 @@ require('dotenv').config({ path: '../.env' });
 const { MongoClient, ObjectId } = require('mongodb');
 const usersAddressesData = require('../utils/constants/userAddressData.json');
 
-async function seedUsers(addressIds) {
+async function seedUsers() {
     const client = new MongoClient(process.env.MONGO_URI);
 
     try {
