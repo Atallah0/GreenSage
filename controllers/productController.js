@@ -3,6 +3,8 @@ const Category = require('../models/categoryModel');
 const asyncWrapper = require('../middleware/asyncWrapper');
 const { createCustomError } = require('../utils/customError');
 const mongoose = require('mongoose');
+const { getCategoryNameById } = require('../services/categoryServices');
+
 
 // createProduct Endpoint/API
 const createProduct = asyncWrapper(async (req, res, next) => {
@@ -78,10 +80,19 @@ const getProduct = asyncWrapper(async (req, res, next) => {
         return next(createCustomError(`No product with id: ${productId}`, 404));
     }
 
+    // Assuming there is a reference to the "category" in your Product schema
+    const categoryId = product.categoryId; // Adjust this based on your actual schema
+
+    // Fetch the category and all its fields
+    // const category = await Category.findById(categoryId);
+
+    // Fetch the category name
+    const categoryName = await getCategoryNameById(categoryId);
+
     res.status(200).json({
         msg: `Product fetched successfully`,
         success: true,
-        data: product
+        data: { product, categoryName }
     })
 });
 
