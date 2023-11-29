@@ -7,9 +7,6 @@
             "$numberDecimal": "2.99"
         },
         "availableInStock": 50,
-        "rating": {
-            "$numberDecimal": "4.5"
-        },
         "imageUrl": "https://example.com/basil.jpg",
         "categoryId": "6562283c3e6dfff45bca24e1",
         "__v": 0
@@ -22,9 +19,6 @@
             "$numberDecimal": "1.49"
         },
         "availableInStock": 100,
-        "rating": {
-            "$numberDecimal": "3.8"
-        },
         "imageUrl": "https://example.com/tomato.jpg",
         "categoryId": "656228593e6dfff45bca24e3",
         "__v": 0
@@ -37,9 +31,6 @@
             "$numberDecimal": "0.99"
         },
         "availableInStock": 75,
-        "rating": {
-            "$numberDecimal": "4.2"
-        },
         "imageUrl": "https://example.com/apple.jpg",
         "categoryId": "6562286f3e6dfff45bca24e5",
         "__v": 0
@@ -52,9 +43,6 @@
             "$numberDecimal": "2.49"
         },
         "availableInStock": 30,
-        "rating": {
-            "$numberDecimal": "4"
-        },
         "imageUrl": "https://example.com/avocado.jpg",
         "categoryId": "656228593e6dfff45bca24e3",
         "__v": 0
@@ -67,9 +55,6 @@
             "$numberDecimal": "0.79"
         },
         "availableInStock": 120,
-        "rating": {
-            "$numberDecimal": "3.5"
-        },
         "imageUrl": "https://example.com/carrot.jpg",
         "categoryId": "656228593e6dfff45bca24e3",
         "__v": 0
@@ -82,9 +67,6 @@
             "$numberDecimal": "0.69"
         },
         "availableInStock": 80,
-        "rating": {
-            "$numberDecimal": "4.8"
-        },
         "imageUrl": "https://example.com/banana.jpg",
         "categoryId": "6562286f3e6dfff45bca24e5",
         "__v": 0
@@ -97,9 +79,6 @@
             "$numberDecimal": "1.29"
         },
         "availableInStock": 60,
-        "rating": {
-            "$numberDecimal": "3.9"
-        },
         "imageUrl": "https://example.com/cucumber.jpg",
         "categoryId": "656228593e6dfff45bca24e3",
         "__v": 0
@@ -112,9 +91,6 @@
             "$numberDecimal": "1.19"
         },
         "availableInStock": 90,
-        "rating": {
-            "$numberDecimal": "4.6"
-        },
         "imageUrl": "https://example.com/orange.jpg",
         "categoryId": "6562286f3e6dfff45bca24e5",
         "__v": 0
@@ -127,9 +103,6 @@
             "$numberDecimal": "2.79"
         },
         "availableInStock": 40,
-        "rating": {
-            "$numberDecimal": "4.1"
-        },
         "imageUrl": "https://example.com/spinach.jpg",
         "categoryId": "6562283c3e6dfff45bca24e1",
         "__v": 0
@@ -142,9 +115,6 @@
             "$numberDecimal": "3.49"
         },
         "availableInStock": 25,
-        "rating": {
-            "$numberDecimal": "4.7"
-        },
         "imageUrl": "https://example.com/mango.jpg",
         "categoryId": "6562286f3e6dfff45bca24e5",
         "__v": 0

@@ -26,9 +26,6 @@ const productSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    rating: {
-        type: Decimal128,
-    },
     // ratingCount: Number, // Number of reviews
     imageUrl: {
         type: String,
@@ -50,6 +47,19 @@ const productSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Rating', // Reference the Rating model
     }],
+});
+
+// Virtual field for calculated average rating
+productSchema.virtual('averageRating').get(function () {
+    // Calculate the average rating from the 'ratings' array
+    const ratings = this.ratings;
+    if (ratings.length === 0) {
+        return 0;
+    }
+
+    const sum = ratings.reduce((acc, rating) => acc + Number(rating.rating), 0);
+    const average = sum / ratings.length;
+    return average;
 });
 
 module.exports = mongoose.model('Product', productSchema);

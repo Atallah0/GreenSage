@@ -81,6 +81,9 @@ const getProduct = asyncWrapper(async (req, res, next) => {
         return next(createCustomError(`No product with id: ${productId}`, 404));
     }
 
+    // Calculate the average rating
+    const averageRating = product.averageRating;
+
     // Assuming there is a reference to the "category" in your Product schema
     const categoryId = product.categoryId; // Adjust this based on your actual schema
 
@@ -93,7 +96,7 @@ const getProduct = asyncWrapper(async (req, res, next) => {
     res.status(200).json({
         msg: `Product fetched successfully`,
         success: true,
-        data: { product, categoryName }
+        data: { product, averageRating, categoryName }
     })
 });
 
