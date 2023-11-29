@@ -1,15 +1,15 @@
-const { Decimal128 } = require('mongodb');
 const mongoose = require('mongoose');
+const { Decimal128 } = require('mongodb');
 
 const imageURLRegex = /^(http|https):\/\/(www\.)?(.*)\.(?:jpeg|jpg|png|gif)$/i;
 
 const productSchema = new mongoose.Schema({
-    title: {
+    name: {
         type: String,
-        required: [true, `Title can not be empty`],
+        required: [true, `Name can not be empty`],
         trim: true,
-        minLength: [1, 'Title can not be less than 1 character'],
-        maxLength: [50, 'Title can not be longer than 50 characters']
+        minLength: [1, 'Name can not be less than 1 character'],
+        maxLength: [50, 'Name can not be longer than 50 characters']
     },
     description: {
         type: String,
@@ -46,6 +46,10 @@ const productSchema = new mongoose.Schema({
         ref: 'Category',  // Reference the Category model
         required: true,
     },
+    ratings: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Rating', // Reference the Rating model
+    }],
 });
 
 module.exports = mongoose.model('Product', productSchema);

@@ -8,18 +8,18 @@ const { getCategoryNameById } = require('../services/categoryServices');
 
 // createProduct Endpoint/API
 const createProduct = asyncWrapper(async (req, res, next) => {
-    const { title, description, price, availableInStock, rating, imageUrl, categoryId } = req.body;
+    const { name, description, price, availableInStock, rating, imageUrl, categoryId } = req.body;
 
-    if (!title || !description || !price || !availableInStock || !rating || !imageUrl || !categoryId) {
+    if (!name || !description || !price || !availableInStock || !rating || !imageUrl || !categoryId) {
         console.log('Missing required fields');
         return next(createCustomError('Please provide all required fields', 400));
     }
 
-    // Check for existing product with the same title and description
-    const existingProduct = await Product.findOne({ title, description });
+    // Check for existing product with the same name and description
+    const existingProduct = await Product.findOne({ name, description });
 
     if (existingProduct) {
-        return next(createCustomError('Product with the same title and description already exists', 400));
+        return next(createCustomError('Product with the same name and description already exists', 400));
     }
 
     const category = await Category.findById(categoryId);
@@ -30,7 +30,7 @@ const createProduct = asyncWrapper(async (req, res, next) => {
 
     const product = await Product.create(req.body);   // Or
     // const product = await Product.create({
-    //     title,
+    //     name,
     //     description,
     //     price,
     //     availableInStock,
@@ -73,7 +73,8 @@ const getProduct = asyncWrapper(async (req, res, next) => {
         return next(createCustomError(`Invalid productId ID: ${productId}`, 400));
     }
 
-    const product = await Product.findById(productId);
+    // Fetch the product and populate its 'ratings' field
+    const product = await Product.findById(productId).populate('ratings', '-ratingId -__v');
 
     // Check if the productId exists
     if (!product) {
@@ -114,7 +115,7 @@ const updateProduct = asyncWrapper(async (req, res, next) => {
     }
 
     // const existingProductData = {
-    //     title: existingProduct.title,
+    //     name: existingProduct.name,
     //     description: existingProduct.description,
     //     price: existingProduct.price,
     //     availableInStock: existingProduct.price,

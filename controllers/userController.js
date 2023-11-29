@@ -89,8 +89,9 @@ const getUser = asyncWrapper(async (req, res, next) => {
         return next(createCustomError(`Invalid user ID: ${userID}`, 400));
     }
 
+    // Fetch the user and populate its 'ratings' field
     // const user = await User.findOne({ _id: userID })
-    const user = await User.findById(userID);
+    const user = await User.findById(userID).populate('ratings', '-ratingId -__v');
 
     // Check if the user exists
     if (!user) {

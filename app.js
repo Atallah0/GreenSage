@@ -13,6 +13,7 @@ const users = require('./routes/userRoutes');
 const addresses = require('./routes/addressRoutes');
 const categories = require('./routes/categoryRoutes');
 const products = require('./routes/productRoutes');
+const ratings = require('./routes/ratingRoutes ');
 
 // Middlewares
 app.use(express.urlencoded({ extended: true }));
@@ -23,6 +24,7 @@ app.use('/api/users', users);
 app.use('/api/addresses', addresses);
 app.use('/api/categories', categories);
 app.use('/api/products', products);
+app.use('/api/ratings', ratings);
 
 // M
 app.use(notFound);

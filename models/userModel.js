@@ -74,6 +74,10 @@ const userSchema = new mongoose.Schema({
             },
         },
     ],
+    ratings: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Rating', // Reference the Rating model
+    }],
 });
 
 module.exports = mongoose.model('User', userSchema);
