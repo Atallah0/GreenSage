@@ -1,0 +1,173 @@
+[
+    {
+        "_id": "65675de70593f44e65337c1d",
+        "title": "Banana",
+        "rating": 3.8,
+        "description": "Could be better",
+        "userId": "656218f3cbfec5abce02bfd5",
+        "productId": "656232cb19dcd42e597b0df5",
+        "__v": 0
+    },
+    {
+        "_id": "656761cd472224f2dbb4f57f",
+        "title": "Spinach",
+        "rating": 4.0,
+        "description": "Healthy and fresh",
+        "userId": "6561586857cd62784448e981",
+        "productId": "656232e519dcd42e597b0e04",
+        "__v": 0
+    },
+    {
+        "_id": "656761d9472224f2dbb4f587",
+        "title": "Spinach",
+        "rating": 3.5,
+        "description": "Not bad, but could be better",
+        "userId": "656218f3cbfec5abce02bfd5",
+        "productId": "656232e519dcd42e597b0e04",
+        "__v": 0
+    },
+    {
+        "_id": "656761e8472224f2dbb4f590",
+        "title": "Carrot",
+        "rating": 4.2,
+        "description": "Delicious carrots!",
+        "userId": "6561586857cd62784448e981",
+        "productId": "656232c319dcd42e597b0df0",
+        "__v": 0
+    },
+    {
+        "_id": "656761f4472224f2dbb4f598",
+        "title": "Carrot",
+        "rating": 3.9,
+        "description": "Good, but not my favorite",
+        "userId": "656218f3cbfec5abce02bfd5",
+        "productId": "656232c319dcd42e597b0df0",
+        "__v": 0
+    },
+    {
+        "_id": "656761ff472224f2dbb4f5a1",
+        "title": "Cucumber",
+        "rating": 4.6,
+        "description": "Crisp and refreshing",
+        "userId": "6561586857cd62784448e981",
+        "productId": "656232d419dcd42e597b0dfa",
+        "__v": 0
+    },
+    {
+        "_id": "65676208472224f2dbb4f5a9",
+        "title": "Cucumber",
+        "rating": 3.7,
+        "description": "Decent, but not my top choice",
+        "userId": "656218f3cbfec5abce02bfd5",
+        "productId": "656232d419dcd42e597b0dfa",
+        "__v": 0
+    },
+    {
+        "_id": "65676213472224f2dbb4f5b2",
+        "title": "Apple",
+        "rating": 4.8,
+        "description": "Sweet and crisp, love it!",
+        "userId": "6561586857cd62784448e981",
+        "productId": "656232b119dcd42e597b0de6",
+        "__v": 0
+    },
+    {
+        "_id": "6567621c472224f2dbb4f5ba",
+        "title": "Apple",
+        "rating": 4.0,
+        "description": "Not bad, but expected more",
+        "userId": "656218f3cbfec5abce02bfd5",
+        "productId": "656232b119dcd42e597b0de6",
+        "__v": 0
+    },
+    {
+        "_id": "65676225472224f2dbb4f5c3",
+        "title": "Avocado",
+        "rating": 4.5,
+        "description": "Creamy and delicious",
+        "userId": "6561586857cd62784448e981",
+        "productId": "656232bb19dcd42e597b0deb",
+        "__v": 0
+    },
+    {
+        "_id": "65676231472224f2dbb4f5cb",
+        "title": "Avocado",
+        "rating": 3.8,
+        "description": "Good, but not exceptional",
+        "userId": "656218f3cbfec5abce02bfd5",
+        "productId": "656232bb19dcd42e597b0deb",
+        "__v": 0
+    },
+    {
+        "_id": "6567623b472224f2dbb4f5d4",
+        "title": "Orange",
+        "rating": 4.7,
+        "description": "Juicy and flavorful",
+        "userId": "6561586857cd62784448e981",
+        "productId": "656232dd19dcd42e597b0dff",
+        "__v": 0
+    },
+    {
+        "_id": "65676245472224f2dbb4f5dc",
+        "title": "Orange",
+        "rating": 4.2,
+        "description": "Sweet, but could be sweeter",
+        "userId": "656218f3cbfec5abce02bfd5",
+        "productId": "656232dd19dcd42e597b0dff",
+        "__v": 0
+    },
+    {
+        "_id": "65676250472224f2dbb4f5e5",
+        "title": "Basil",
+        "rating": 4.9,
+        "description": "Fresh and aromatic",
+        "userId": "6561586857cd62784448e981",
+        "productId": "6562321e19dcd42e597b0ddc",
+        "__v": 0
+    },
+    {
+        "_id": "6567625c472224f2dbb4f5ed",
+        "title": "Basil",
+        "rating": 3.6,
+        "description": "Not bad, but expected more",
+        "userId": "656218f3cbfec5abce02bfd5",
+        "productId": "6562321e19dcd42e597b0ddc",
+        "__v": 0
+    },
+    {
+        "_id": "65676269472224f2dbb4f5f6",
+        "title": "Tomato",
+        "rating": 4.3,
+        "description": "Ripe and flavorful",
+        "userId": "6561586857cd62784448e981",
+        "productId": "656232a519dcd42e597b0de1",
+        "__v": 0
+    },
+    {
+        "_id": "65676273472224f2dbb4f5fe",
+        "title": "Tomato",
+        "rating": 3.9,
+        "description": "Good, but could be better",
+        "userId": "656218f3cbfec5abce02bfd5",
+        "productId": "656232a519dcd42e597b0de1",
+        "__v": 0
+    },
+    {
+        "_id": "6567627d472224f2dbb4f607",
+        "title": "Mango",
+        "rating": 4.8,
+        "description": "Sweet and tropical",
+        "userId": "6561586857cd62784448e981",
+        "productId": "656232ef19dcd42e597b0e09",
+        "__v": 0
+    },
+    {
+        "_id": "65676286472224f2dbb4f60f",
+        "title": "Mango",
+        "rating": 4.1,
+        "description": "Delicious, but expected more",
+        "userId": "656218f3cbfec5abce02bfd5",
+        "productId": "656232ef19dcd42e597b0e09",
+        "__v": 0
+    }
+]

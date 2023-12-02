@@ -54,6 +54,18 @@ const createRating = asyncWrapper(async (req, res, next) => {
     });
 });
 
+// getRatings Endpoint/API
+const getRatings = asyncWrapper(async (req, res, next) => {
+    const ratings = await Rating.find({});
+
+    res.status(200).json({
+        msg: `Ratings fetched successfully`,
+        success: true,
+        data: ratings
+    })
+});
+
 module.exports = {
     createRating,
+    getRatings
 }

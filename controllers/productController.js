@@ -8,9 +8,9 @@ const { getCategoryNameById } = require('../services/categoryServices');
 
 // createProduct Endpoint/API
 const createProduct = asyncWrapper(async (req, res, next) => {
-    const { name, description, price, availableInStock, rating, imageUrl, categoryId } = req.body;
+    const { name, description, price, availableInStock, imageUrl, categoryId } = req.body;
 
-    if (!name || !description || !price || !availableInStock || !rating || !imageUrl || !categoryId) {
+    if (!name || !description || !price || !availableInStock || !imageUrl || !categoryId) {
         console.log('Missing required fields');
         return next(createCustomError('Please provide all required fields', 400));
     }
@@ -34,7 +34,6 @@ const createProduct = asyncWrapper(async (req, res, next) => {
     //     description,
     //     price,
     //     availableInStock,
-    //     rating,
     //     imageUrl,
     //     categoryId
     // });
@@ -122,7 +121,6 @@ const updateProduct = asyncWrapper(async (req, res, next) => {
     //     description: existingProduct.description,
     //     price: existingProduct.price,
     //     availableInStock: existingProduct.price,
-    //     rating: existingProduct.rating,
     //     imageUrl: existingProduct.imageUrl,
     //     categoryId: existingProduct.categoryId
     // }
