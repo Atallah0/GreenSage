@@ -131,6 +131,8 @@ const updateUser = asyncWrapper(async (req, res, next) => {
         lastName: existingUser.lastName,
         email: existingUser.email,
         mobile: existingUser.mobile,
+        password: existingUser.password,
+        imageUrl: existingUser.imageUrl
         // addresses: existingUser.addresses
 
     };
