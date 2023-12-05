@@ -83,8 +83,7 @@ const getProduct = asyncWrapper(async (req, res, next) => {
     // Calculate the average rating
     const averageRating = product.averageRating;
 
-    // Assuming there is a reference to the "category" in your Product schema
-    const categoryId = product.categoryId; // Adjust this based on your actual schema
+    const categoryId = product.categoryId;
 
     // Fetch the category and all its fields
     // const category = await Category.findById(categoryId);
@@ -116,40 +115,23 @@ const updateProduct = asyncWrapper(async (req, res, next) => {
         return next(createCustomError(`No product with id: ${productId}`, 404));
     }
 
-    // const existingProductData = {
-    //     name: existingProduct.name,
-    //     description: existingProduct.description,
-    //     price: existingProduct.price,
-    //     availableInStock: existingProduct.price,
-    //     imageUrl: existingProduct.imageUrl,
-    //     categoryId: existingProduct.categoryId
-    // }
-
-    // // Check if the req.body is the same as existing product data
-    // if (JSON.stringify(existingProductData) === JSON.stringify(req.body)) {
-    //     return next(createCustomError('Nothing to update', 400))
-
-    // }
-
-    // console.log(JSON.stringify(existingProductData));
-    // console.log(JSON.stringify(req.body));
 
     const updatedProduct = await Product.findByIdAndUpdate({ _id: productId }, req.body, {
         new: true,
         runValidators: true
     })
 
-    // The approach to update the productId in Category
-    // Get the categoryId of the product
-    const categoryId = existingProduct.categoryId;
+    const categoryId = await Category.findById(req.body.categoryId)
 
     if (!categoryId) {
-        return next(createCustomError('Category does notexist', 400));
+        return next(createCustomError('Category does not exist', 400));
     }
+
+    const existingCategoryId = existingProduct.categoryId;
 
     // Remove the product reference from the associated category
     await Category.findByIdAndUpdate(
-        categoryId,
+        existingCategoryId,
         { $pull: { products: productId } },
         { new: true }
     );
@@ -189,7 +171,7 @@ const deleteProduct = asyncWrapper(async (req, res, next) => {
     const categoryId = existingProduct.categoryId;
 
     if (!categoryId) {
-        return next(createCustomError('Category does notexist', 400));
+        return next(createCustomError('Category does not exist', 400));
     }
 
     // Remove the product reference from the associated category
