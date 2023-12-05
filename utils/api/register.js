@@ -47,13 +47,14 @@ router.post('/api/register', asyncWrapper(async (req, res, next) => {
     });
 
     // Create the cart associated with the user
-    const cart = await Cart.findById(newUser._id);
-    if (!cart) {
-        await Cart.create({
-            totalPrice: 0,
-            userId: newUser._id,
-        });
-    }
+    const cart = await Cart.create({
+        totalPrice: 0,
+        userId: newUser._id,
+    });
+
+    // Set the user's cart field to the cart's _id
+    newUser.cart = cart._id;
+    await newUser.save();
 
     if (savedUser) {
         res.status(200).json({

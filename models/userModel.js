@@ -77,7 +77,7 @@ const userSchema = new mongoose.Schema({
     cart: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Cart',
-        populate: true, // automatically fetch the cart when querying a user
+        // populate: true, // automatically fetch the cart when querying a user
     },
 });
 

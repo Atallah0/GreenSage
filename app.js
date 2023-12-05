@@ -16,6 +16,7 @@ const addresses = require('./routes/addressRoutes');
 const categories = require('./routes/categoryRoutes');
 const products = require('./routes/productRoutes');
 const ratings = require('./routes/ratingRoutes ');
+const carts = require('./routes/cartRoutes');
     
 // Middlewares
 app.use(express.urlencoded({ extended: true }));
@@ -29,6 +30,7 @@ app.use('/api/addresses', addresses);
 app.use('/api/categories', categories);
 app.use('/api/products', products);
 app.use('/api/ratings', ratings);
+app.use('/api/carts', carts);
 
 // M
 app.use(notFound);

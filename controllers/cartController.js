@@ -1,4 +1,4 @@
-const Cart = require('../models/userModel');
+const Cart = require('../models/cartModel');
 const asyncWrapper = require('../middleware/asyncWrapper');
 const { createCustomError } = require('../utils/customError');
 const mongoose = require('mongoose');
@@ -13,11 +13,11 @@ const fetchCart = asyncWrapper(async (req, res, next) => {
     console.log('Fetching Cart from userId:' + userId);
 
     // Fetching the cart based on the user
-    const cart = await Cart.findOne({ where: { _id: userId, } });
+    const cart = await Cart.findOne({ userId });
 
     // If the cart is not found return error
     if (!cart) {
-        console.log('Error Fetching Cart from userId:' + userId);
+        console.log(`Error Fetching Cart from userId: ${userId}`);
         return next(createCustomError(`Invalid User`, 403));
     }
 
