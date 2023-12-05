@@ -30,30 +30,26 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    // dateOfBirth: {
-    //     type: Date,
-    // },
-    // password: {
-    //     type: String,
-    //     required: true,
-    // },
-    // imageUrl: {
-    //     type: String,
-    //     required: [true, `ImageUrl can not be empty`],
-    //     trim: true,
-    //     validate: [
-    //         {
-    //             validator: (value) => imageURLRegex.test(value),
-    //             message: `Invalid image URL format`,
-    //         },
-    //     ],
-    // },
-
-    // role: {
-    //     type: String,
-    //     required: true,
-    //     default: 'admin',
-    // },
+    password: {
+        type: String,
+        required: true,
+    },
+    imageUrl: {
+        type: String,
+        required: [true, `ImageUrl can not be empty`],
+        trim: true,
+        validate: [
+            {
+                validator: (value) => imageURLRegex.test(value),
+                message: `Invalid image URL format`,
+            },
+        ],
+    },
+    role: {
+        type: String,
+        required: true,
+        default: 'owner',
+    },
     addresses: [
         {
             street: {
@@ -78,6 +74,11 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Rating', // Reference the Rating model
     }],
+    cart: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Cart',
+        populate: true, // automatically fetch the cart when querying a user
+    },
 });
 
 module.exports = mongoose.model('User', userSchema);

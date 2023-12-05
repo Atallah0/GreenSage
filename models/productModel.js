@@ -20,6 +20,7 @@ const productSchema = new mongoose.Schema({
     },
     price: {
         type: Decimal128,
+        required: [true, `Price can not be empty`],
         default: 0,
     },
     availableInStock: {
@@ -46,6 +47,10 @@ const productSchema = new mongoose.Schema({
     ratings: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Rating', // Reference the Rating model
+    }],
+    cartItems: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'CartItem', // Reference the CartItem model
     }],
 });
 

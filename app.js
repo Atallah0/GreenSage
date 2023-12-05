@@ -7,6 +7,8 @@ require('dotenv').config();
 // M
 const notFound = require('./middleware/notFound');
 const errorHandler = require('./middleware/errorHandler');
+const register = require('./utils/api/register');
+// const login = require('./utils/api/login');
 
 // Routers
 const users = require('./routes/userRoutes');
@@ -20,6 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Routes Middleware
+app.use(register);
 app.use('/api/users', users);
 app.use('/api/addresses', addresses);
 app.use('/api/categories', categories);

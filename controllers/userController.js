@@ -5,9 +5,9 @@ const mongoose = require('mongoose');
 
 // createUser Endpoint/API
 const createUser = asyncWrapper(async (req, res, next) => {
-    const { firstName, lastName, email, mobile, addresses } = req.body;
+    const { firstName, lastName, email, mobile, password, imageUrl, addresses } = req.body;
 
-    if (!firstName || !lastName || !email || !mobile || !addresses) {
+    if (!firstName || !lastName || !email || !mobile || !password || !imageUrl || !addresses) {
         console.log('Missing required fields');
         return next(createCustomError('Please provide all required fields', 400));
     }
@@ -30,6 +30,9 @@ const createUser = asyncWrapper(async (req, res, next) => {
         lastName,
         email,
         mobile,
+        password,
+        imageUrl,
+        role: 'owner',
         addresses: userAddresses,
     });
 
