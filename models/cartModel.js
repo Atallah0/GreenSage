@@ -13,7 +13,7 @@ const cartSchema = new mongoose.Schema({
     },
     cartItems: [
         {
-            Price: {
+            price: {
                 type: Decimal128,
                 required: [true, `Price can not be empty`],
             },
