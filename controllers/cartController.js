@@ -58,8 +58,6 @@ const addItemToCart = asyncWrapper(async (req, res, next) => {
     // Check if the cart already contains the product
     const existingCartItem = cart.cartItems.find(item => item.productId.equals(productId));
 
-    // ...
-
     if (existingCartItem) {
         // If the cart item already exists, update the quantity
         const totalQuantity = existingCartItem.quantity + quantity;
@@ -114,8 +112,108 @@ const addItemToCart = asyncWrapper(async (req, res, next) => {
     }
 });
 
+// // removeItemFromCart Endpoint/API
+// const removeItemFromCart = asyncWrapper(async (req, res, next) => {
+//     const userId = req.params.userId;
+//     const productId = req.params.productId;
+
+//     // logging the process
+//     console.log('Removing Item from Cart with userId: ' + userId);
+
+//     // fetch the cart and product
+//     const cart = await Cart.findOne({ userId });
+//     const productToRemove = await Product.findById(productId);
+
+//     // If the product to remove does not exist
+//     if (!productToRemove) {
+//         return next(createCustomError(`Product does not exist`, 404));
+//     }
+
+//     // Check if the cart contains the product
+//     const existingCartItem = cart.cartItems.find(item => item.productId.equals(productId));
+
+//     if (existingCartItem) {
+//         // Calculate the new total price and remove the item from the cart
+//         const newTotal = parseFloat(cart.totalPrice) - existingCartItem.price * existingCartItem.quantity;
+
+//         await Cart.findByIdAndUpdate(cart._id, {
+//             totalPrice: newTotal,
+//             $pull: { cartItems: { productId: existingCartItem.productId } },
+//         });
+
+//         return res.status(200).json({
+//             success: true,
+//             message: `Item Removed from Cart Successfully`,
+//             data: existingCartItem,
+//         });
+//     } else {
+//         return res.status(200).json({
+//             success: false,
+//             message: 'Item not found in the cart',
+//         });
+//     }
+// });
+
+// removeItemFromCart Endpoint/API
+const removeItemFromCart = asyncWrapper(async (req, res, next) => {
+    const userId = req.params.userId;
+    const productId = req.params.productId;
+
+    // logging the process
+    console.log('Removing Item from Cart with userId: ' + userId);
+
+    // fetch the cart and product
+    const cart = await Cart.findOne({ userId });
+    const productToRemove = await Product.findById(productId);
+
+    // If the product to remove does not exist
+    if (!productToRemove) {
+        return next(createCustomError(`Product does not exist`, 404));
+    }
+
+    // Check if the cart contains the product
+    const existingCartItem = cart.cartItems.find(item => item.productId.equals(productId));
+
+    if (existingCartItem) {
+        if (existingCartItem.quantity === 1 /*|| !req.body.quantity*/) {
+            // If product quantity is 1 or no quantity is provided, remove the entire product
+            const newTotal = parseFloat(cart.totalPrice) - existingCartItem.price * existingCartItem.quantity;
+
+            await Cart.findByIdAndUpdate(cart._id, {
+                totalPrice: newTotal,
+                $pull: { cartItems: { productId: existingCartItem.productId } },
+            });
+
+            return res.status(200).json({
+                success: true,
+                message: `Item Removed from Cart Successfully`,
+                data: existingCartItem,
+            });
+        } else if (existingCartItem.quantity > 1) {
+            // If product quantity is more than 1, decrease it by one
+            const newTotal = parseFloat(cart.totalPrice) - existingCartItem.price;
+
+            await Cart.findOneAndUpdate(
+                { _id: cart._id, 'cartItems.productId': existingCartItem.productId },
+                { $inc: { 'cartItems.$.quantity': -1 }, totalPrice: newTotal }
+            );
+
+            return res.status(200).json({
+                success: true,
+                message: `Quantity Decreased by 1 for the Item in Cart`,
+                data: existingCartItem,
+            });
+        }
+    } else {
+        return res.status(200).json({
+            success: false,
+            message: 'Item not found in the cart',
+        });
+    }
+});
 
 module.exports = {
     fetchCart,
     addItemToCart,
+    removeItemFromCart,
 }
