@@ -212,8 +212,40 @@ const removeItemFromCart = asyncWrapper(async (req, res, next) => {
     }
 });
 
+// clearCart Endpoint/API
+const clearCart = asyncWrapper(async (req, res, next) => {
+    const userId = req.params.userId;
+
+    // logging the process
+    console.log('Clearing Cart for userId: ' + userId);
+
+    // Fetch the cart
+    const cart = await Cart.findOne({ userId });
+
+    if (cart) {
+        // Clear all items from the cart
+        await Cart.findByIdAndUpdate(cart._id, {
+            totalPrice: 0,
+            $set: { cartItems: [] },
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Cart Cleared Successfully',
+            data: {},
+        });
+    } else {
+        return res.status(200).json({
+            success: false,
+            message: 'Cart not found for the user',
+        });
+    }
+});
+
+
 module.exports = {
     fetchCart,
     addItemToCart,
     removeItemFromCart,
+    clearCart
 }
