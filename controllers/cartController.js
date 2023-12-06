@@ -82,6 +82,11 @@ const addItemToCart = asyncWrapper(async (req, res, next) => {
             { $set: { 'cartItems.$.quantity': totalQuantity } }
         );
 
+        // Update the Product model's cartItems array
+        await Product.findByIdAndUpdate(productId, {
+            $set: { cartItems: { _id: existingCartItem._id, quantity: totalQuantity } },
+        });
+
         return res.status(200).json({
             success: true,
             message: `Item Added to Cart Successfully`,
@@ -91,9 +96,10 @@ const addItemToCart = asyncWrapper(async (req, res, next) => {
         // If the cart item does not exist, create a new cart item
         const price = fetchedProduct.price;
         const newCartItem = {
+            _id: new mongoose.Types.ObjectId(), // Generate a new ObjectId
             price,
             quantity,
-            productId: fetchedProduct.id,
+            productId: fetchedProduct._id,
         };
 
         // Update the cart's total price and add the new cart item
@@ -102,6 +108,11 @@ const addItemToCart = asyncWrapper(async (req, res, next) => {
         await Cart.findByIdAndUpdate(cart._id, {
             totalPrice: newTotal,
             $push: { cartItems: newCartItem },
+        });
+
+        // Update the Product model's cartItems array
+        await Product.findByIdAndUpdate(productId, {
+            $push: { cartItems: { _id: newCartItem._id, quantity: quantity } },
         });
 
         return res.status(200).json({
@@ -175,9 +186,14 @@ const removeItemFromCart = asyncWrapper(async (req, res, next) => {
     const existingCartItem = cart.cartItems.find(item => item.productId.equals(productId));
 
     if (existingCartItem) {
-        if (existingCartItem.quantity === 1 /*|| !req.body.quantity*/) {
+        if (existingCartItem.quantity === 1) {
             // If product quantity is 1 or no quantity is provided, remove the entire product
             const newTotal = parseFloat(cart.totalPrice) - existingCartItem.price * existingCartItem.quantity;
+
+            // Remove the cart item from the Product model's cartItems array
+            await Product.findByIdAndUpdate(productId, {
+                $pull: { cartItems: existingCartItem._id },
+            });
 
             await Cart.findByIdAndUpdate(cart._id, {
                 totalPrice: newTotal,
@@ -223,6 +239,12 @@ const clearCart = asyncWrapper(async (req, res, next) => {
     const cart = await Cart.findOne({ userId });
 
     if (cart) {
+        // To-Do --------------------------------------------------------------------------------------
+        // // Remove the cart item from the Product model's cartItems array
+        // await Product.findByIdAndUpdate(productId, {
+        //     $pull: { cartItems: existingCartItem._id },
+        // });
+
         // Clear all items from the cart
         await Cart.findByIdAndUpdate(cart._id, {
             totalPrice: 0,
