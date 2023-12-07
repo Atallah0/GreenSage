@@ -6,6 +6,7 @@ const router = express.Router();
 
 const User = require('../../models/userModel');
 const Cart = require('../../models/cartModel');
+const Favorite = require('../../models/favoriteModel');
 
 
 router.post('/api/register', asyncWrapper(async (req, res, next) => {
@@ -51,9 +52,17 @@ router.post('/api/register', asyncWrapper(async (req, res, next) => {
         totalPrice: 0,
         userId: newUser._id,
     });
+    // Create the favorite associated with the user
+    const favorite = await Favorite.create({
+        items: [],
+        userId: newUser._id,
+    });
 
-    // Set the user's cart field to the cart's _id
+    // Set the user's cart and favorite fields to the respective model's _id
     newUser.cart = cart._id;
+    newUser.favorite = favorite._id;
+
+    // Save the user with cart and favorite references
     await newUser.save();
 
     if (savedUser) {

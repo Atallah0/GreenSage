@@ -79,6 +79,10 @@ const userSchema = new mongoose.Schema({
         ref: 'Cart',
         // populate: true, // automatically fetch the cart when querying a user
     },
+    favorite: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Favorite', // Reference the Favorite model
+    },
 });
 
 module.exports = mongoose.model('User', userSchema);

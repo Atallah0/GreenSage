@@ -3,7 +3,6 @@ const User = require('../models/userModel');
 const Product = require('../models/productModel');
 const asyncWrapper = require('../middleware/asyncWrapper');
 const { createCustomError } = require('../utils/customError');
-const { Decimal128 } = require('mongodb');
 const mongoose = require('mongoose');
 
 // fetchCart Endpoint/API
@@ -11,8 +10,13 @@ const fetchCart = asyncWrapper(async (req, res, next) => {
     // const userId = req.body.userId; // Changed later to fetch from the jwt token
     const { id: userId } = req.params;
 
+    // Check if the userID is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return next(createCustomError(`Invalid user ID: ${userId}`, 400));
+    }
+
     // logging the process
-    console.log('Fetching Cart from userId:' + userId);
+    console.log(`Fetching Cart from userId: ${userId}`);
 
     // Fetching the cart based on the user
     const cart = await Cart.findOne({ userId });
@@ -36,6 +40,16 @@ const fetchCart = asyncWrapper(async (req, res, next) => {
 const addItemToCart = asyncWrapper(async (req, res, next) => {
     const userId = req.params.userId;
     const productId = req.params.productId;
+
+    // Check if the userID is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return next(createCustomError(`Invalid user ID: ${userId}`, 400));
+    }
+
+    // Check if the productId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+        return next(createCustomError(`Invalid user ID: ${productId}`, 400));
+    }
 
     let quantity = req.body.quantity;
 
@@ -170,6 +184,16 @@ const removeItemFromCart = asyncWrapper(async (req, res, next) => {
     const userId = req.params.userId;
     const productId = req.params.productId;
 
+    // Check if the userID is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return next(createCustomError(`Invalid user ID: ${userId}`, 400));
+    }
+
+    // Check if the productId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+        return next(createCustomError(`Invalid user ID: ${productId}`, 400));
+    }
+
     // logging the process
     console.log('Removing Item from Cart with userId: ' + userId);
 
@@ -231,6 +255,11 @@ const removeItemFromCart = asyncWrapper(async (req, res, next) => {
 // clearCart Endpoint/API
 const clearCart = asyncWrapper(async (req, res, next) => {
     const userId = req.params.userId;
+
+    // Check if the userID is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return next(createCustomError(`Invalid user ID: ${userId}`, 400));
+    }
 
     // logging the process
     console.log('Clearing Cart for userId: ' + userId);

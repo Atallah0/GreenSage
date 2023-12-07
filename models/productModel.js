@@ -52,6 +52,10 @@ const productSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'CartItem', // Reference the CartItem model
     }],
+    favorits: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Favorite', // Reference the Favorite model
+    }],
 });
 
 // Virtual field for calculated average rating
