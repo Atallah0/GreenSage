@@ -18,6 +18,7 @@ const products = require('./routes/productRoutes');
 const ratings = require('./routes/ratingRoutes ');
 const carts = require('./routes/cartRoutes');
 const favorites = require('./routes/favoriteRoutes');
+const shipments = require('./routes/shippingRoutes');
 
     
 // Middlewares
@@ -35,6 +36,7 @@ app.use('/api/products', products);
 app.use('/api/ratings', ratings);
 app.use('/api/carts', carts);
 app.use('/api/favorites', favorites);
+app.use('/api/shipments', shipments);
 
 
 // M
