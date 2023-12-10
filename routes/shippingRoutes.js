@@ -3,13 +3,12 @@ const router = express.Router();
 
 const {
     createShipping,
-    getShipments
+    getShipments,
+    getShipment
 } = require('../controllers/shippingController')
 
-router.post('/:userId', createShipping);
-router.get('/:userId', getShipments);
-// router.get('/:id', getRating);
-// router.put('/:id', updateRating);
-// router.delete('/:id', deleteRating);
+router.post('/', createShipping);
+router.get('/', getShipments);
+router.get('/:id', getShipment);
 
 module.exports = router;

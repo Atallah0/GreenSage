@@ -6,40 +6,10 @@ const mongoose = require('mongoose');
 
 // createShipping Endpoint/API
 const createShipping = asyncWrapper(async (req, res, next) => {
-    const userId = req.params.userId;
-    const { userAddressIndex } = req.body;
-
-    // Check if the userID is a valid ObjectId
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-        return next(createCustomError(`Invalid user ID: ${userId}`, 400));
-    }
-
-    // Fetch the user with detailed address information
-    const user = await User.findById(userId);
-
-    if (!user) {
-        return next(createCustomError('User not found', 404));
-    }
-
-    // Validate userAddressIndex against the number of addresses
-    if (userAddressIndex < 0 || userAddressIndex >= user.addresses.length) {
-        return next(createCustomError('Invalid userAddressIndex', 400));
-    }
-
-    // Get the selected address
-    const selectedAddress = user.addresses[userAddressIndex];
-
-    console.log(selectedAddress);
+    const { status } = req.body;
 
     // Create the shipping entry
-    const shipping = await Shipping.create({
-        userId,
-        userAddressIndex,
-        status: 'pending',
-        userAddress: selectedAddress
-    });
-
-    await shipping.save();
+    const shipping = await Shipping.create({ status });
 
     res.status(201).json({
         msg: `Shipping created successfully`,
@@ -48,11 +18,9 @@ const createShipping = asyncWrapper(async (req, res, next) => {
     });
 });
 
+// getShipments Endpoin/API
 const getShipments = asyncWrapper(async (req, res, next) => {
-    const userId = req.params.userId;
-
-    // Fetch all shipments for the user
-    const shipments = await Shipping.find({ userId });
+    const shipments = await Shipping.find({});
 
     res.status(200).json({
         msg: 'Shipments retrieved successfully',
@@ -61,7 +29,28 @@ const getShipments = asyncWrapper(async (req, res, next) => {
     });
 });
 
+// getShipment Endpoin/API
+const getShipment = asyncWrapper(async (req, res, next) => {
+    const { id: shippingId } = req.params;
+
+    // Check if the userID is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(shippingId)) {
+        return next(createCustomError(`Invalid shippinId ID: ${shippingId}`, 400));
+    }
+
+    const shipment = await Shipping.findById({ _id: shippingId });
+
+    res.status(200).json({
+        msg: 'Shipments retrieved successfully',
+        success: true,
+        data: shipment
+    });
+});
+
+
+
 module.exports = {
     createShipping,
     getShipments,
+    getShipment,
 };

@@ -274,12 +274,12 @@ const clearCart = asyncWrapper(async (req, res, next) => {
             $set: { cartItems: [] },
         });
 
-        // // Remove the cart item from the Product model's cartItems array for all products
-        // await Product.updateMany({
-        //     cartItems: cart._id,
-        // }, {
-        //     $pull: { cartItems: cart._id },
-        // });
+        // Remove the cart item from the Product model's cartItems array for all products
+        await Product.updateMany({
+            cartItems: cart._id,
+        }, {
+            $pull: { cartItems: cart._id },
+        });
 
         return res.status(200).json({
             success: true,

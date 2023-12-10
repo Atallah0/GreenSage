@@ -4,17 +4,13 @@ const paymentSchema = new mongoose.Schema({
     type: {
         type: String,
         required: [true, 'Payment type can not be empty'],
+        enum: ['credit', 'debit'],
         trim: true,
     },
-    userId: {
+    orders: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // Reference the User model
-        required: true,
-    },
-    shippingId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Shipping', // Reference the Shipping model
-    },
+        ref: 'Orders'
+    }]
 });
 
 module.exports = mongoose.model('Payment', paymentSchema);

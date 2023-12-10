@@ -83,6 +83,10 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Favorite', // Reference the Favorite model
     },
+    orders: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Order'
+    }]
 });
 
 module.exports = mongoose.model('User', userSchema);
