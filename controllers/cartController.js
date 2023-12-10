@@ -268,17 +268,18 @@ const clearCart = asyncWrapper(async (req, res, next) => {
     const cart = await Cart.findOne({ userId });
 
     if (cart) {
-        // To-Do --------------------------------------------------------------------------------------
-        // // Remove the cart item from the Product model's cartItems array
-        // await Product.findByIdAndUpdate(productId, {
-        //     $pull: { cartItems: existingCartItem._id },
-        // });
-
         // Clear all items from the cart
         await Cart.findByIdAndUpdate(cart._id, {
             totalPrice: 0,
             $set: { cartItems: [] },
         });
+
+        // // Remove the cart item from the Product model's cartItems array for all products
+        // await Product.updateMany({
+        //     cartItems: cart._id,
+        // }, {
+        //     $pull: { cartItems: cart._id },
+        // });
 
         return res.status(200).json({
             success: true,
