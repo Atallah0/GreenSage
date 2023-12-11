@@ -24,6 +24,9 @@ const orderSchema = new mongoose.Schema({
         ref: 'Shipping',  // Reference the User model
         required: true,
     },
+    userAddress: {},
+    totalPrice: Number,
+    cartItems: [],
 });
 
 module.exports = mongoose.model('Order', orderSchema);

@@ -7,8 +7,8 @@ const shippingSchema = new mongoose.Schema({
     },
     orders: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Orders'
-    }]
+        ref: 'Order'
+    }],
 });
 
 module.exports = mongoose.model('Shipping', shippingSchema);

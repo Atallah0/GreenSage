@@ -38,7 +38,7 @@ const getShipment = asyncWrapper(async (req, res, next) => {
         return next(createCustomError(`Invalid shippinId ID: ${shippingId}`, 400));
     }
 
-    const shipment = await Shipping.findById({ _id: shippingId });
+    const shipment = await Shipping.findById(shippingId).populate('orders');;
 
     res.status(200).json({
         msg: 'Shipments retrieved successfully',

@@ -96,7 +96,7 @@ const getUser = asyncWrapper(async (req, res, next) => {
     // const user = await User.findOne({ _id: userID })
     const user = await User.findById(userID)
         .populate('ratings', '-ratingId -__v')
-        .populate('orders', '-orderId -__v');
+        .populate('orders');
 
 
     // Check if the user exists

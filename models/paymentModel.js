@@ -9,7 +9,7 @@ const paymentSchema = new mongoose.Schema({
     },
     orders: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Orders'
+        ref: 'Order'
     }]
 });
 

@@ -37,7 +37,7 @@ const getPayment = asyncWrapper(async (req, res, next) => {
         return next(createCustomError(`Invalid payment ID: ${paymentId}`, 400));
     }
 
-    const payment = await Payment.findById(paymentId);
+    const payment = await Payment.findById(paymentId).populate('orders');
 
     res.status(200).json({
         msg: 'Payment retrieved successfully',

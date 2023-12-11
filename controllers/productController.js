@@ -71,7 +71,7 @@ const getProduct = asyncWrapper(async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(productId)) {
         return next(createCustomError(`Invalid productId ID: ${productId}`, 400));
     }
-
+    // -----------------------------------------------------------------------------------------------------
     // Fetch the product and populate its 'ratings' field
     const product = await Product.findById(productId).populate('ratings', '-ratingId -__v');
 

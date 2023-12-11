@@ -63,6 +63,7 @@ const getCategory = asyncWrapper(async (req, res, next) => {
         return next(createCustomError(`Invalid category ID: ${categoryId}`, 400));
     }
 
+    // -----------------------------------------------------------------------
     // Fetch the category and populate its 'products' field
     const category = await Category.findById(categoryId).populate('products', '-categoryId -__v');
 
