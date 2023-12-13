@@ -112,8 +112,30 @@ const getOrders = asyncWrapper(async (req, res, next) => {
     });
 });
 
+// getOrdersForUser Endpoint/API
+const getOrdersForUser = asyncWrapper(async (req, res, next) => {
+    const { id: userId } = req.params;
+
+    // Check if the userId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return next(createCustomError(`Invalid userId ID: ${userId}`, 400));
+    }
+
+    // Find orders for the given user
+    const orders = await Order.find({ userId })
+    // .populate('paymentId', '-__v') // Add any additional fields to exclude if needed
+    // .populate('shippingId', '-__v') // Add any additional fields to exclude if needed
+    // .exec();
+
+    res.status(200).json({
+        success: true,
+        msg: 'Orders fetched successfully for the user',
+        data: orders,
+    });
+});
 
 module.exports = {
     createOrder,
     getOrders,
+    getOrdersForUser
 };

@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      MONGO_URI: "mongodb+srv://Atallah:Atallah@groceriescluster.q9vzhun.mongodb.net/Gorceriesdb?retryWrites=true&w=majority&appName=AtlasApp"
+    networks:
+      - mynetwork # Use the same network name for both services
+
+  mongo:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: Atallah
+      MONGO_INITDB_ROOT_PASSWORD: Atallah
+      MONGO_INITDB_DATABASE: Gorceriesdb
+    networks:
+      - mynetwork # Use the same network name for both services
+    volumes:
+      - mongo-data:/data/db
+
+networks:
+  mynetwork:
+    driver: bridge
+
+volumes:
+  mongo-data: {}
