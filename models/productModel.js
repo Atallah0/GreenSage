@@ -56,6 +56,9 @@ const productSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Favorite', // Reference the Favorite model
     }],
+    owner: {
+        type: String    
+    }
 });
 
 // Virtual field for calculated average rating

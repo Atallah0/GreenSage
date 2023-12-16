@@ -1,5 +1,6 @@
 const Product = require('../models/productModel');
 const Category = require('../models/categoryModel');
+const User = require('../models/userModel');
 const asyncWrapper = require('../middleware/asyncWrapper');
 const { createCustomError } = require('../utils/customError');
 const mongoose = require('mongoose');
@@ -28,15 +29,27 @@ const createProduct = asyncWrapper(async (req, res, next) => {
         return next(createCustomError('Category does notexist', 400));
     }
 
-    const product = await Product.create(req.body);   // Or
-    // const product = await Product.create({
-    //     name,
-    //     description,
-    //     price,
-    //     availableInStock,
-    //     imageUrl,
-    //     categoryId
-    // });
+    // Fetch user details
+    const createdBy = req.user.id;
+    const user = await User.findOne({ _id: createdBy });
+    console.log(user);
+    // Access user's firstName
+    const firstName = user.firstName;
+    const lastName = user.lastName;
+    console.log(firstName + lastName);
+
+    const owner = `${firstName} ${lastName}`;
+
+    // const product = await Product.create(req.body, owner);   // Or
+    const product = await Product.create({
+        name,
+        description,
+        price,
+        availableInStock,
+        imageUrl,
+        categoryId,
+        owner
+    });
 
     // Update the associated category with the new product reference
     await category.updateOne(

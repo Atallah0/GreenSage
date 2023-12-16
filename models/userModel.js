@@ -86,7 +86,49 @@ const userSchema = new mongoose.Schema({
     orders: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Order'
-    }]
+    }],
+    healthStatus: {
+        vitaminD: {
+            type: Boolean,
+            default: false,
+        },
+        iron: {
+            type: Boolean,
+            default: false,
+        },
+        vitaminB12: {
+            type: Boolean,
+            default: false,
+        },
+        calcium: {
+            type: Boolean,
+            default: false,
+        },
+        omega3: {
+            type: Boolean,
+            default: false,
+        },
+        iodine: {
+            type: Boolean,
+            default: false,
+        },
+        vitaminC: {
+            type: Boolean,
+            default: false,
+        },
+        folate: {
+            type: Boolean,
+            default: false,
+        },
+        magnesium: {
+            type: Boolean,
+            default: false,
+        },
+        zinc: {
+            type: Boolean,
+            default: false,
+        },
+    }
 });
 
 module.exports = mongoose.model('User', userSchema);

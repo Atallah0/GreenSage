@@ -10,7 +10,7 @@ const Favorite = require('../../models/favoriteModel');
 
 
 router.post('/api/register', asyncWrapper(async (req, res, next) => {
-    const { firstName, lastName, email, mobile, password, imageUrl, addresses } = req.body;
+    const { firstName, lastName, email, mobile, password, imageUrl, addresses, healthStatus } = req.body;
 
     if (!firstName || !lastName || !email || !mobile || !password || !imageUrl || !addresses) {
         return next(createCustomError('Please provide all required fields', 400));
@@ -31,6 +31,11 @@ router.post('/api/register', asyncWrapper(async (req, res, next) => {
         city: address.city,
     }));
 
+    // // Filter the healthStatus object to include only true values
+    // const filteredHealthStatus = Object.fromEntries(
+    //     Object.entries(healthStatus).filter(([key, value]) => value === true)
+    // );
+
     const newUser = await User.create({
         firstName,
         lastName,
@@ -40,6 +45,7 @@ router.post('/api/register', asyncWrapper(async (req, res, next) => {
         imageUrl,
         role: 'customer',
         addresses: userAddresses,
+        healthStatus // Set healthStatus object with only true values
     });
 
     const savedUser = await newUser.save().catch((err) => {
