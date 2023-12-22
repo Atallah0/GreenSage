@@ -226,10 +226,36 @@ const deleteProduct = asyncWrapper(async (req, res, next) => {
 });
 
 
+const getRelatedProducts = asyncWrapper(async (req, res, next) => {
+    const userId = req.params.userId;
+
+    // Find user by ID
+    const user = await User.findById(userId);
+    if (!user) {
+        return res.status(404).json({ success: false, error: 'User not found' });
+    }
+
+    // Build a query based on the healthStatus fields
+    const healthStatusQuery = Object.keys(user.healthStatus)
+        .filter(key => user.healthStatus[key])
+        .map(key => ({ description: new RegExp(key, 'i') }));
+
+    if (healthStatusQuery.length === 0) {
+        return res.status(200).json({ success: true, data: [] }); // No healthStatus fields selected
+    }
+
+    // Find products matching the healthStatus criteria
+    const products = await Product.find({ $or: healthStatusQuery });
+
+    res.status(200).json({ success: true, data: products });
+});
+
+
 module.exports = {
     createProduct,
     getProducts,
     getProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    getRelatedProducts
 }

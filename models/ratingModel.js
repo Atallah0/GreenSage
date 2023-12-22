@@ -10,6 +10,7 @@ const ratingSchema = new mongoose.Schema({
         minLength: [1, 'Title can not be less than 1 character'],
         maxLength: [50, 'Title can not be longer than 50 characters']
     },
+    // ToDo
     rating: {
         type: Decimal128,
         required: [true, `Rating can not be empty`],
