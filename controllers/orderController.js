@@ -65,6 +65,9 @@ const createOrder = asyncWrapper(async (req, res, next) => {
         cartItems
     });
 
+    // Update product stock in the cart
+    await updateProductStockInCart(order._id);
+
     // Update the associated category with the new product reference
     await user.updateOne(
         { $push: { orders: order._id } },
@@ -133,6 +136,32 @@ const getOrdersForUser = asyncWrapper(async (req, res, next) => {
         data: orders,
     });
 });
+
+// Function to update product stock in the cart
+const updateProductStockInCart = async (orderId) => {
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+        throw new Error('Order not found');
+    }
+
+    for (const cartItem of order.cartItems) {
+        const productId = cartItem.productId;
+        const quantityBought = cartItem.quantity;
+
+        const product = await Product.findById(productId);
+        if (!product) {
+            throw new Error('Product not found');
+        }
+
+        if (quantityBought > product.availableInStock) {
+            throw new Error('Insufficient stock for the product');
+        }
+
+        product.availableInStock -= quantityBought;
+        await product.save();
+    }
+};
 
 module.exports = {
     createOrder,

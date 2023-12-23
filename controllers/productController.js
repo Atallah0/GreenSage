@@ -225,6 +225,43 @@ const deleteProduct = asyncWrapper(async (req, res, next) => {
     });
 });
 
+const search = asyncWrapper(async (req, res, next) => {
+    const { categoryName, productName, description, ownerName } = req.query;
+
+    const query = {};
+
+    if (categoryName) {
+        // Make the search for category name case-insensitive
+        const categoryRegex = new RegExp(categoryName, 'i');
+        const category = await Category.findOne({ name: { $regex: categoryRegex } });
+        
+        if (category) {
+            query.categoryId = category._id;
+        } else {
+            return res.status(400).json({ success: false, msg: 'Category not found' });
+        }
+    }
+
+    if (productName) {
+        query.name = { $regex: productName, $options: 'i' };
+    }
+
+    if (description) {
+        query.description = { $regex: description, $options: 'i' };
+    }
+
+    if (ownerName) {
+        query.owner = { $regex: ownerName, $options: 'i' };
+    }
+
+    const products = await Product.find(query);
+
+    res.status(200).json({
+        success: true,
+        msg: 'Products fetched successfully',
+        data: products,
+    });
+});
 
 const getRelatedProducts = asyncWrapper(async (req, res, next) => {
     const userId = req.params.userId;
@@ -257,5 +294,6 @@ module.exports = {
     getProduct,
     updateProduct,
     deleteProduct,
-    getRelatedProducts
+    getRelatedProducts,
+    search
 }
