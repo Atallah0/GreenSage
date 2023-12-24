@@ -5,6 +5,7 @@ const asyncWrapper = require('../middleware/asyncWrapper');
 const { createCustomError } = require('../utils/customError');
 const mongoose = require('mongoose');
 const { getCategoryNameById } = require('../services/categoryServices');
+const { PAGE_SIZE } = require('../constants');
 
 
 // createProduct Endpoint/API
@@ -67,13 +68,32 @@ const createProduct = asyncWrapper(async (req, res, next) => {
 
 // getProducts Endpoint/API
 const getProducts = asyncWrapper(async (req, res, next) => {
-    const products = await Product.find({});
+    const { pageNumber } = req.query;
+
+    if (!pageNumber) {
+        return next(createCustomError('Page Number is missing', 400));
+    }
+
+    if (isNaN(pageNumber) || pageNumber < 1) {
+        return next(createCustomError('Invalid Page Number', 400));          //###############
+    }
+
+    const newPageOffset = pageNumber === 1 ? 0 : (pageNumber - 1) * PAGE_SIZE;
+    const products = await Product.find({})
+        .skip(newPageOffset)
+        .limit(PAGE_SIZE);
+    const totalProducts = await Product.find({}).count();
+    const totalPages = Math.ceil(totalProducts / PAGE_SIZE);          //###############
+
+    if (pageNumber > totalPages) {                                   //###############
+        return next(createCustomError('Page Number exceeds total pages', 400));
+    }
 
     res.status(200).json({
         msg: `Products fetched successfully`,
         success: true,
-        data: products
-    })
+        data: { products, totalProducts, totalPages }     //###############
+    });
 });
 
 // getProduct Endpoint/API
@@ -234,7 +254,7 @@ const search = asyncWrapper(async (req, res, next) => {
         // Make the search for category name case-insensitive
         const categoryRegex = new RegExp(categoryName, 'i');
         const category = await Category.findOne({ name: { $regex: categoryRegex } });
-        
+
         if (category) {
             query.categoryId = category._id;
         } else {

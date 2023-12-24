@@ -16,7 +16,7 @@ const {
 } = require('../controllers/productController')
 
 router.post('/', passport.authenticate('jwt', { session: false }), isOwner, createProduct);
-router.get('/', getProducts);
+router.get('/v1/query', getProducts);
 router.get('/:id', getProduct);
 router.put('/:id', updateProduct);
 router.delete('/:id', deleteProduct);
