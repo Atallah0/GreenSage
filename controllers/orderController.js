@@ -6,13 +6,15 @@ const Shipping = require('../models/shippingModel');
 const Product = require('../models/productModel')
 const asyncWrapper = require('../middleware/asyncWrapper');
 const { createCustomError } = require('../utils/customError');
-const { clearCart } = require('./cartController');
+const { DELIVERY_FEES } = require('../constants');
 const mongoose = require('mongoose');
 
+
+//ToDO if cart is empty
 // createOrder Endpoint/API
 const createOrder = asyncWrapper(async (req, res, next) => {
     const { id: userId } = req.params;
-    const { deliveryFee, paymentId, shippingId, userAddressIndex } = req.body;
+    const { paymentId, shippingId, userAddressIndex } = req.body;
 
     console.log(userAddressIndex);
 
@@ -21,7 +23,7 @@ const createOrder = asyncWrapper(async (req, res, next) => {
         return next(createCustomError(`Invalid userId ID: ${userId}`, 400));
     }
 
-    if (!deliveryFee || !paymentId || !shippingId) {
+    if (!paymentId || !shippingId) {
         return next(createCustomError('Missing required properties in the request body', 400));
     }
 
@@ -37,7 +39,7 @@ const createOrder = asyncWrapper(async (req, res, next) => {
     const { totalPrice, cartItems } = cart;
 
     // Calculate totalPrice by subtracting deliveryFee
-    const adjustedTotalPrice = totalPrice - parseFloat(deliveryFee);
+    const adjustedTotalPrice = totalPrice + parseFloat(DELIVERY_FEES);
 
     // ------------------------------------------------------------------  errors
     const user = await User.findById(userId);
@@ -57,7 +59,7 @@ const createOrder = asyncWrapper(async (req, res, next) => {
     const order = await Order.create({
         userId,
         date: new Date(),
-        deliveryFee,
+        deliveryFee: DELIVERY_FEES,
         paymentId,
         shippingId,
         userAddress: selectedAddress,
