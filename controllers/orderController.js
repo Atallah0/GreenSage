@@ -39,7 +39,8 @@ const createOrder = asyncWrapper(async (req, res, next) => {
     const { totalPrice, cartItems } = cart;
 
     // Calculate totalPrice by subtracting deliveryFee
-    const adjustedTotalPrice = totalPrice + parseFloat(DELIVERY_FEES);
+    const adjustedTotalPrice = Number(totalPrice) + DELIVERY_FEES;
+    console.log(adjustedTotalPrice);
 
     // ------------------------------------------------------------------  errors
     const user = await User.findById(userId);

@@ -34,6 +34,7 @@ const createUser = asyncWrapper(async (req, res, next) => {
         imageUrl,
         role: 'owner',
         addresses: userAddresses,
+        healthStatus: 0,
     });
 
     console.log('User created successfully');

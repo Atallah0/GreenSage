@@ -73,8 +73,9 @@ router.post('/api/register', asyncWrapper(async (req, res, next) => {
 
     if (savedUser) {
         res.status(200).json({
-            success: true,
             message: 'Thanks for registering',
+            success: true,
+            data: savedUser
         });
     }
 }));
