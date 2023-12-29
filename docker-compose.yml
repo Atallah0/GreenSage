@@ -6,23 +6,23 @@ services:
     ports:
       - "5000:5000"
     environment:
-      MONGO_URI: "mongodb+srv://Atallah:Atallah@groceriescluster.q9vzhun.mongodb.net/Gorceriesdb?retryWrites=true&w=majority&appName=AtlasApp"
+      MONGO_URI: ${MONGO_URI}
     networks:
-      - mynetwork # Use the same network name for both services
+      - GreenSage
 
   mongo:
     image: mongo:latest
     environment:
-      MONGO_INITDB_ROOT_USERNAME: Atallah
-      MONGO_INITDB_ROOT_PASSWORD: Atallah
-      MONGO_INITDB_DATABASE: Gorceriesdb
+      MONGO_INITDB_ROOT_USERNAME: m7moudshayeb
+      MONGO_INITDB_ROOT_PASSWORD: m7moudshayeb
+      MONGO_INITDB_DATABASE: Sari
     networks:
-      - mynetwork # Use the same network name for both services
+      - GreenSage
     volumes:
       - mongo-data:/data/db
 
 networks:
-  mynetwork:
+  GreenSage:
     driver: bridge
 
 volumes:

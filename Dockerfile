@@ -10,6 +10,10 @@ COPY . .
 
 EXPOSE 5000
 
-ENV MONGO_URI="mongodb+srv://Atallah:Atallah@groceriescluster.q9vzhun.mongodb.net/Gorceriesdb?retryWrites=true&w=majority&appName=AtlasApp"
+# Set a default value for MONGO_URI during the build
+ARG MONGO_URI="mongodb://localhost:27017/default"
+
+# Set environment variable to the provided or default value
+ENV MONGO_URI=${MONGO_URI}
 
 CMD [ "npm", "start" ]

@@ -24,9 +24,9 @@ router.post('/api/login', asyncWrapper(async (req, res, next) => {
     }
 
     // Set the expiration time to 1 hour (3600 seconds)
-    const expiresIn = 3600;
+    const expiresIn = 360000;
 
-    const jwToken = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, {expiresIn});
+    const jwToken = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn });
 
     res.status(200).json({
         success: true,
