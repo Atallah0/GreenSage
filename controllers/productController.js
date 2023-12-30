@@ -1,6 +1,7 @@
 const Product = require('../models/productModel');
 const Category = require('../models/categoryModel');
 const User = require('../models/userModel');
+const Rating = require('../models/ratingModel');
 const asyncWrapper = require('../middleware/asyncWrapper');
 const { createCustomError } = require('../utils/customError');
 const mongoose = require('mongoose');
@@ -75,26 +76,75 @@ const getProducts = asyncWrapper(async (req, res, next) => {
     }
 
     if (isNaN(pageNumber) || pageNumber < 1) {
-        return next(createCustomError('Invalid Page Number', 400));          //###############
+        return next(createCustomError('Invalid Page Number', 400));
     }
 
     const newPageOffset = pageNumber === 1 ? 0 : (pageNumber - 1) * PAGE_SIZE;
+
+    // Populate the 'ratings' field for each product
     const products = await Product.find({})
         .skip(newPageOffset)
-        .limit(PAGE_SIZE);
-    const totalProducts = await Product.find({}).count();
-    const totalPages = Math.ceil(totalProducts / PAGE_SIZE);          //###############
+        .limit(PAGE_SIZE)
+        .populate({
+            path: 'ratings',
+            select: '-ratingId -__v'
+        })
 
-    if (pageNumber > totalPages) {                                   //###############
+    const totalProducts = await Product.find({}).count();
+    const totalPages = Math.ceil(totalProducts / PAGE_SIZE);
+
+    if (pageNumber > totalPages) {
         return next(createCustomError('Page Number exceeds total pages', 400));
     }
+
+    // Access the virtual field 'averageRating' for each product
+    const productsWithDetails = await Promise.all(products.map(async (product) => {
+        const categoryId = product.categoryId;
+        const categoryName = await getCategoryNameById(categoryId);
+
+        const averageRating = product.averageRating
+
+        // Fetch user details for each rating
+        const userIds = product.ratings.map(rating => rating.userId);
+        const ratingUsers = await Promise.all(userIds.map(userId => User.findById(userId)));
+
+        // Extract relevant information from each user
+        const ratingDetails = product.ratings.map((rating, index) => ({
+            rating: {
+                _id: rating._id,
+                userName: ratingUsers[index] ? `${ratingUsers[index].firstName} ${ratingUsers[index].lastName}` : "Unknown",
+                title: rating.title,
+                rating: rating.rating,
+                description: rating.description,
+            },
+        }));
+
+        return {
+            _id: product._id,
+            owner: product.owner,
+            categoryName,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            availableInStock: product.availableInStock,
+            imageUrl: product.imageUrl,
+            cartItems: product.cartItems,
+            favorits: product.favorits,
+            averageRating,
+            ratingCount: product.ratings.length,
+            ratingDetails,
+        };
+
+    }));
 
     res.status(200).json({
         msg: `Products fetched successfully`,
         success: true,
-        data: { products, totalProducts, totalPages }     //###############
+        data: { products: productsWithDetails, totalProducts, totalPages }
     });
 });
+
+
 
 // getProduct Endpoint/API
 const getProduct = asyncWrapper(async (req, res, next) => {
@@ -114,7 +164,7 @@ const getProduct = asyncWrapper(async (req, res, next) => {
     }
 
     // Calculate the average rating
-    const averageRating = product.averageRating;
+    // const averageRating = product.averageRating;
 
     const categoryId = product.categoryId;
 
@@ -124,11 +174,49 @@ const getProduct = asyncWrapper(async (req, res, next) => {
     // Fetch the category name
     const categoryName = await getCategoryNameById(categoryId);
 
+    // Return the count of ratings
+    const ratingCount = product.ratings.length;
+
+    // Fetch user details for each rating
+    const userIds = product.ratings.map(rating => rating.userId);
+    const ratingUsers = await Promise.all(userIds.map(userId => User.findById(userId)));
+    // Extract relevant information from each user
+    // const ratingUserNames = ratingUsers.map(user => user ? `${user.firstName} ${user.lastName}` : "Unknown");
+
+    // Extract relevant information from each user
+    const ratingDetails = product.ratings.map((rating, index) => ({
+        rating: {
+            _id: rating._id,
+            userName: ratingUsers[index] ? `${ratingUsers[index].firstName} ${ratingUsers[index].lastName}` : "Unknown",
+            title: rating.title,
+            rating: rating.rating,
+            description: rating.description,
+            // userId: rating.userId,
+            // productId: rating.productId,
+        },
+    }));
+
     res.status(200).json({
         msg: `Product fetched successfully`,
         success: true,
-        data: { product, averageRating, categoryName }
-    })
+        data: {
+            product: {
+                _Id: product._id,
+                owner: product.owner,
+                categoryName,
+                name: product.name,
+                description: product.description,
+                price: product.price,
+                availableInStock: product.availableInStock,
+                imageUrl: product.imageUrl,
+                cartItems: product.cartItems,
+                favorits: product.favorits,
+                averageRating: product.averageRating,
+                ratingCount,
+                ratingDetails,
+            }
+        }
+    });
 });
 
 

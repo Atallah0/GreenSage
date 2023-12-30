@@ -1,4 +1,4 @@
-const PAGE_SIZE = 3;
+const PAGE_SIZE = 20;
 const DELIVERY_FEES = 10;
 
 module.exports = {
