@@ -26,9 +26,14 @@ const cartSchema = new mongoose.Schema({
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'Product',  // Reference the Product model
                 required: true,
-            }
+            },
+            itemTotalPrice: {},
         },
-    ]
+    ],
+    totalItems: {
+        type: Number,
+        default: 0,
+    },
 });
 
 module.exports = mongoose.model('Cart', cartSchema);

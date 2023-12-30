@@ -201,7 +201,7 @@ const getProduct = asyncWrapper(async (req, res, next) => {
         success: true,
         data: {
             product: {
-                _Id: product._id,
+                _id: product._id,
                 owner: product.owner,
                 categoryName,
                 name: product.name,

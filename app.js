@@ -12,6 +12,7 @@ const login = require('./utils/api/login');
 
 // Routers
 const users = require('./routes/userRoutes');
+const owners = require('./routes/ownerRoutes');
 const addresses = require('./routes/addressRoutes');
 const categories = require('./routes/categoryRoutes');
 const products = require('./routes/productRoutes');
@@ -32,6 +33,7 @@ app.use(express.json());
 app.use(register);
 app.use(login);
 app.use('/api/users', users);
+app.use('/api/owners', owners);
 app.use('/api/addresses', addresses);
 app.use('/api/categories', categories);
 app.use('/api/products', products);

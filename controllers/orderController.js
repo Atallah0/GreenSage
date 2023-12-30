@@ -55,6 +55,9 @@ const createOrder = asyncWrapper(async (req, res, next) => {
     // Get the selected address
     const selectedAddress = user.addresses[userAddressIndex];
 
+    if (cart.cartItems.length === 0) {
+        return next(createCustomError(`Cart is empty`, 400))
+    }
 
     // Create the order entry
     const order = await Order.create({
@@ -90,6 +93,7 @@ const createOrder = asyncWrapper(async (req, res, next) => {
     // Clear all items from the cart
     await Cart.findByIdAndUpdate(cart._id, {
         totalPrice: 0,
+        totalItems: 0,
         $set: { cartItems: [] },
     });
 
@@ -128,15 +132,33 @@ const getOrdersForUser = asyncWrapper(async (req, res, next) => {
     }
 
     // Find orders for the given user
-    const orders = await Order.find({ userId })
-    // .populate('paymentId', '-__v') // Add any additional fields to exclude if needed
-    // .populate('shippingId', '-__v') // Add any additional fields to exclude if needed
-    // .exec();
+    const orders = await Order.find({ userId });
+
+    const user = await User.findById({ _id: userId })
+    const userName = `${user.firstName} ${user.lastName}`;
+
+    const paymentIds = orders.map(order => order.paymentId);
+
+    // Fetch payment details for each paymentId
+    const paymentType = await Promise.all(paymentIds.map(async (paymentId) => {
+        const payment = await Payment.findById(paymentId);
+        return payment ? payment.type : "Unknown";
+    }));
+
+    console.log(userName);
+    console.log(paymentType);
+
+    // Combine userName and paymentType with each order
+    const ordersWithDetails = orders.map((order, index) => ({
+        ...order.toObject(), // Convert Mongoose document to plain JavaScript object
+        userName,
+        paymentType: paymentType[index],
+    }));
 
     res.status(200).json({
         success: true,
         msg: 'Orders fetched successfully for the user',
-        data: orders,
+        data: ordersWithDetails,
     });
 });
 

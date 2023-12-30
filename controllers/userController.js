@@ -1,4 +1,5 @@
 const User = require('../models/userModel');
+const Product = require('../models/productModel');
 const asyncWrapper = require('../middleware/asyncWrapper');
 const { createCustomError } = require('../utils/customError');
 const mongoose = require('mongoose');
@@ -187,10 +188,58 @@ const deleteUser = asyncWrapper(async (req, res, next) => {
     })
 });
 
+// getOwners Endpoint/API
+const getOwners = asyncWrapper(async (req, res, next) => {
+    const owners = await User.find({ role: 'owner' }, { healthStatus: 0, ratings: 0, orders: 0 });
+
+    // Get product counts for each owner
+    const ownersWithProductCount = await Promise.all(
+        owners.map(async (owner) => {
+            const productCount = await Product.countDocuments({ owner: `${owner.firstName} ${owner.lastName}` });
+            return { ...owner.toObject(), productCount };
+        })
+    );
+    res.status(200).json({
+        msg: `Owners fetched successfully`,
+        success: true,
+        data: ownersWithProductCount
+    });
+});
+
+// getOwnerById Endpoint/API
+const getOwner = asyncWrapper(async (req, res, next) => {
+    const { id: ownerId } = req.params;
+
+    // Find the owner by ID
+    const owner = await User.findById({ _id: ownerId }, { healthStatus: 0, ratings: 0, orders: 0 });
+
+    if (!owner) {
+        return next(createCustomError(`No owner with id: ${ownerId}`, 404));
+    }
+
+    // Get product count for the owner
+    const productCount = await Product.countDocuments({ owner: `${owner.firstName} ${owner.lastName}` });
+
+    // Get all products owned by the owner
+    const products = await Product.find({ owner: `${owner.firstName} ${owner.lastName}` });
+
+    res.status(200).json({
+        msg: `Owner and their products fetched successfully`,
+        success: true,
+        data: {
+            owner: { ...owner.toObject(), productCount },
+            products,
+        },
+    });
+});
+
+
 module.exports = {
     createUser,
     getUsers,
     getUser,
     updateUser,
     deleteUser,
+    getOwners,
+    getOwner
 };

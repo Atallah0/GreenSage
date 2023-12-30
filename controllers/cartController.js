@@ -36,7 +36,6 @@ const fetchCart = asyncWrapper(async (req, res, next) => {
     });
 });
 
-// addItemToCart Endpoint/API
 const addItemToCart = asyncWrapper(async (req, res, next) => {
     const userId = req.params.userId;
     const productId = req.params.productId;
@@ -86,47 +85,58 @@ const addItemToCart = asyncWrapper(async (req, res, next) => {
 
         const newTotal = parseFloat(cart.totalPrice) + existingCartItem.price * quantity;
 
-        // Update the cart's total price and existing cart item's quantity
+        // Calculate itemTotalPrice for the existingCartItem
+        const existingItemTotalPrice = (existingCartItem.quantity + quantity) * existingCartItem.price;
+        console.log(existingItemTotalPrice);
+
+        // Update the cart's total price and existing cart item's quantity and itemTotalPrice
         await Cart.findByIdAndUpdate(cart._id, {
             totalPrice: newTotal,
         });
 
         await Cart.findOneAndUpdate(
             { _id: cart._id, 'cartItems.productId': existingCartItem.productId },
-            { $set: { 'cartItems.$.quantity': totalQuantity } }
+            { $set: { 'cartItems.$.quantity': totalQuantity, 'cartItems.$.itemTotalPrice': existingItemTotalPrice } }
         );
 
-        // Update the Product model's cartItems array
+        // Update the Product model's cartItems array with quantity and itemTotalPrice
         await Product.findByIdAndUpdate(productId, {
-            $set: { cartItems: { _id: existingCartItem._id, quantity: totalQuantity } },
+            $set: {
+                cartItems: { _id: existingCartItem._id }
+            },
         });
 
         return res.status(200).json({
             success: true,
             message: `Item Added to Cart Successfully`,
-            data: existingCartItem,
+            data: { cartItem: existingCartItem }
         });
     } else {
         // If the cart item does not exist, create a new cart item
         const price = fetchedProduct.price;
+        const itemTotalPrice = price * quantity; // Calculate itemTotalPrice for the newCartItem
+
         const newCartItem = {
-            _id: new mongoose.Types.ObjectId(), // Generate a new ObjectId
+            _id: new mongoose.Types.ObjectId(),
             price,
             quantity,
             productId: fetchedProduct._id,
+            itemTotalPrice: itemTotalPrice, // Add itemTotalPrice to the newCartItem
         };
 
         // Update the cart's total price and add the new cart item
-        const newTotal = parseFloat(cart.totalPrice) + price * quantity;
+        const newTotal = parseFloat(cart.totalPrice) + itemTotalPrice;
+        // console.log("aaaaaaaaaaaaaaaa" + typeof(cart.totalItems = 1));
 
         await Cart.findByIdAndUpdate(cart._id, {
             totalPrice: newTotal,
             $push: { cartItems: newCartItem },
+            totalItems: Number(cart.totalItems + 1),
         });
 
-        // Update the Product model's cartItems array
+        // Update the Product model's cartItems array with quantity and itemTotalPrice
         await Product.findByIdAndUpdate(productId, {
-            $push: { cartItems: { _id: newCartItem._id, quantity: quantity } },
+            $push: { cartItems: { _id: newCartItem._id } },
         });
 
         return res.status(200).json({
@@ -136,6 +146,7 @@ const addItemToCart = asyncWrapper(async (req, res, next) => {
         });
     }
 });
+
 
 // // removeItemFromCart Endpoint/API
 // const removeItemFromCart = asyncWrapper(async (req, res, next) => {
@@ -222,6 +233,7 @@ const removeItemFromCart = asyncWrapper(async (req, res, next) => {
             await Cart.findByIdAndUpdate(cart._id, {
                 totalPrice: newTotal,
                 $pull: { cartItems: { productId: existingCartItem.productId } },
+                totalItems: cart.totalItems - 1
             });
 
             return res.status(200).json({
@@ -271,6 +283,7 @@ const clearCart = asyncWrapper(async (req, res, next) => {
         // Clear all items from the cart
         await Cart.findByIdAndUpdate(cart._id, {
             totalPrice: 0,
+            totalItems: 0,
             $set: { cartItems: [] },
         });
 
