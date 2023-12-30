@@ -16,11 +16,22 @@ const isCustomer = (req, res, next) => {
     return next(createCustomError('Access denied. You are not an customer.', 403));
 };
 
+// const hasAccessToOwnData = (req, res, next) => {
+//     // Check if the user is trying to access their own data.
+//     if ((req.params || req.body) && req.user && (req.params.id || req.body.userId) === req.user.id) {
+//         return next();
+//     }
+//     return next(createCustomError('Access denied. You do not have permission to access this data.', 403));
+// };
+
 const hasAccessToOwnData = (req, res, next) => {
+    const authenticatedUserId = req.user ? req.user.id : null;
+
     // Check if the user is trying to access their own data.
-    if ((req.params || req.body) && req.user && (req.params.id || req.body.userId) === req.user.id) {
+    if ((req.params || req.body) && req.body.userId === authenticatedUserId) {
         return next();
     }
+
     return next(createCustomError('Access denied. You do not have permission to access this data.', 403));
 };
 

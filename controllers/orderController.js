@@ -2,28 +2,29 @@ const Order = require('../models/orderModel');
 const Cart = require('../models/cartModel');
 const User = require('../models/userModel');
 const Payment = require('../models/paymentModel');
-const Shipping = require('../models/shippingModel');
+// const Shipping = require('../models/shippingModel');
 const Product = require('../models/productModel')
 const asyncWrapper = require('../middleware/asyncWrapper');
 const { createCustomError } = require('../utils/customError');
 const { DELIVERY_FEES } = require('../constants');
 const mongoose = require('mongoose');
+const { request } = require('express');
 
 
 //ToDO if cart is empty
 // createOrder Endpoint/API
 const createOrder = asyncWrapper(async (req, res, next) => {
     const { id: userId } = req.params;
-    const { paymentId, shippingId, userAddressIndex } = req.body;
+    const { paymentId, shipmentStatus, userAddressIndex } = req.body;
 
-    console.log(userAddressIndex);
+    // console.log(userAddressIndex);
 
     // Check if the userId is a valid ObjectId
     if (!mongoose.Types.ObjectId.isValid(userId)) {
         return next(createCustomError(`Invalid userId ID: ${userId}`, 400));
     }
 
-    if (!paymentId || !shippingId) {
+    if (!paymentId) {
         return next(createCustomError('Missing required properties in the request body', 400));
     }
 
@@ -45,7 +46,6 @@ const createOrder = asyncWrapper(async (req, res, next) => {
     // ------------------------------------------------------------------  errors
     const user = await User.findById(userId);
     const payment = await Payment.findById(paymentId);
-    const shipment = await Shipping.findById(shippingId);
 
     // Validate userAddressIndex against the number of addresses
     if (userAddressIndex < 0 || userAddressIndex >= user.addresses.length) {
@@ -65,7 +65,7 @@ const createOrder = asyncWrapper(async (req, res, next) => {
         date: new Date(),
         deliveryFee: DELIVERY_FEES,
         paymentId,
-        shippingId,
+        shipmentStatus,
         userAddress: selectedAddress,
         totalPrice: adjustedTotalPrice,
         cartItems
@@ -81,11 +81,6 @@ const createOrder = asyncWrapper(async (req, res, next) => {
     );
 
     await payment.updateOne(
-        { $push: { orders: order._id } },
-        { new: true }
-    );
-
-    await shipment.updateOne(
         { $push: { orders: order._id } },
         { new: true }
     );
@@ -188,8 +183,38 @@ const updateProductStockInCart = async (orderId) => {
     }
 };
 
+const updateOrderStatus = asyncWrapper(async (req, res, next) => {
+    const { id: orderId } = req.params
+    const { shipmentStatus } = req.body;
+
+    // Check if the orderId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+        return next(createCustomError(`Invalid orderId ID: ${orderId}`, 400));
+    }
+
+    // Update the order status
+    const updatedOrder = await Order.findByIdAndUpdate({ _id: orderId }, { shipmentStatus }, {
+        new: true,
+        runValidators: true
+    } // Return the updated document and enable validation
+        // { $set: { shipmentStatus } },
+    );
+
+    if (!updatedOrder) {
+        return next(createCustomError(`No order found with id: ${orderId}`, 404));
+    }
+
+    res.status(200).json({
+        success: true,
+        message: 'Order status updated successfully',
+        data: updatedOrder,
+    });
+});
+
+
 module.exports = {
     createOrder,
     getOrders,
-    getOrdersForUser
+    getOrdersForUser,
+    updateOrderStatus
 };

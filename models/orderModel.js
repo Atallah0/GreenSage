@@ -19,10 +19,10 @@ const orderSchema = new mongoose.Schema({
         ref: 'Payment',  // Reference the User model
         required: true,
     },
-    shippingId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Shipping',  // Reference the User model
-        required: true,
+    shipmentStatus: {
+        type: String,
+        enum: ['pending', 'shipped', 'delivered'],
+        default: 'pending',
     },
     userAddress: {},
     totalPrice: Number,
