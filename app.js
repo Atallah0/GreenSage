@@ -23,6 +23,9 @@ const shipments = require('./routes/shippingRoutes');
 const payments = require('./routes/paymnetRoutes');
 const orders = require('./routes/orderRoutes');
 
+
+// CORS Middleware
+app.use(cors());
     
 // Middlewares
 app.use(express.urlencoded({ extended: true }));
