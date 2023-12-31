@@ -2,6 +2,7 @@ const express = require('express');
 const process = require('process');
 const app = express();
 const connectDB = require('./db/dbConnection');
+const cors = require('cors');
 require('dotenv').config();
 
 // M

@@ -1,8 +1,11 @@
 const User = require('../models/userModel');
 const Product = require('../models/productModel');
+const Rating = require('../models/ratingModel');
 const asyncWrapper = require('../middleware/asyncWrapper');
 const { createCustomError } = require('../utils/customError');
 const mongoose = require('mongoose');
+const { getCategoryNameById } = require('../services/categoryServices');
+
 
 // createUser Endpoint/API
 const createUser = asyncWrapper(async (req, res, next) => {
@@ -221,14 +224,60 @@ const getOwner = asyncWrapper(async (req, res, next) => {
     const productCount = await Product.countDocuments({ owner: `${owner.firstName} ${owner.lastName}` });
 
     // Get all products owned by the owner
-    const products = await Product.find({ owner: `${owner.firstName} ${owner.lastName}` });
+    const products = await Product.find({ owner: `${owner.firstName} ${owner.lastName}` })
+        .populate({
+            path: 'ratings',
+            select: '-ratingId -__v'
+        });
+
+    console.log(products[0]);
+
+    // Access the virtual field 'averageRating' for each product
+    const productsWithDetails = await Promise.all(products.map(async (product) => {
+        const categoryId = product.categoryId;
+        const categoryName = await getCategoryNameById(categoryId);
+
+        const averageRating = product.averageRating
+
+        // Fetch user details for each rating
+        const userIds = product.ratings.map(rating => rating.userId);
+        const ratingUsers = await Promise.all(userIds.map(userId => User.findById(userId)));
+
+        // Extract relevant information from each user
+        const ratingDetails = product.ratings.map((rating, index) => ({
+            rating: {
+                _id: rating._id,
+                userName: ratingUsers[index] ? `${ratingUsers[index].firstName} ${ratingUsers[index].lastName}` : "Unknown",
+                title: rating.title,
+                rating: rating.rating,
+                description: rating.description,
+            },
+        }));
+
+        return {
+            _id: product._id,
+            owner: product.owner,
+            categoryName,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            availableInStock: product.availableInStock,
+            imageUrl: product.imageUrl,
+            cartItems: product.cartItems,
+            favorits: product.favorits,
+            averageRating,
+            ratingCount: product.ratings.length,
+            ratingDetails,
+        };
+
+    }));
 
     res.status(200).json({
         msg: `Owner and their products fetched successfully`,
         success: true,
         data: {
             owner: { ...owner.toObject(), productCount },
-            products,
+            products: productsWithDetails,
         },
     });
 });
