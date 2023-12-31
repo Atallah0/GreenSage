@@ -11,7 +11,7 @@ const {
 } = require('../controllers/userController')
 
 router.get('/', getOwners);
-router.get('/:id', getOwner);
+router.get('/:id/v1/query', getOwner);
 
 
 module.exports = router;

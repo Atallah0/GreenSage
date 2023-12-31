@@ -5,6 +5,7 @@ const asyncWrapper = require('../middleware/asyncWrapper');
 const { createCustomError } = require('../utils/customError');
 const mongoose = require('mongoose');
 const { getCategoryNameById } = require('../services/categoryServices');
+const { PAGE_SIZE } = require('../constants');
 
 
 // createUser Endpoint/API
@@ -223,14 +224,33 @@ const getOwner = asyncWrapper(async (req, res, next) => {
     // Get product count for the owner
     const productCount = await Product.countDocuments({ owner: `${owner.firstName} ${owner.lastName}` });
 
+    const { pageNumber } = req.query;
+
+    if (!pageNumber) {
+        return next(createCustomError('Page Number is missing', 400));
+    }
+
+    if (isNaN(pageNumber) || pageNumber < 1) {
+        return next(createCustomError('Invalid Page Number', 400));
+    }
+
+    const newPageOffset = pageNumber === 1 ? 0 : (pageNumber - 1) * PAGE_SIZE;
+
     // Get all products owned by the owner
     const products = await Product.find({ owner: `${owner.firstName} ${owner.lastName}` })
+        .skip(newPageOffset)
+        .limit(PAGE_SIZE)
         .populate({
             path: 'ratings',
             select: '-ratingId -__v'
         });
 
-    console.log(products[0]);
+    const totalProducts = await Product.find({ owner: `${owner.firstName} ${owner.lastName}` }).count();
+    const totalPages = Math.ceil(totalProducts / PAGE_SIZE);
+
+    if (pageNumber > totalPages) {
+        return next(createCustomError('Page Number exceeds total pages', 400));
+    }
 
     // Access the virtual field 'averageRating' for each product
     const productsWithDetails = await Promise.all(products.map(async (product) => {
@@ -278,6 +298,7 @@ const getOwner = asyncWrapper(async (req, res, next) => {
         data: {
             owner: { ...owner.toObject(), productCount },
             products: productsWithDetails,
+            totalProducts, totalPages
         },
     });
 });
