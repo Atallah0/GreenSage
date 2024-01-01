@@ -57,7 +57,19 @@ const productSchema = new mongoose.Schema({
         ref: 'Favorite', // Reference the Favorite model
     }],
     owner: {
-        type: String    
+        type: String
+    },
+    newAdded: {
+        type: Boolean,
+        default: false
+    },
+    featured: {
+        type: Boolean,
+        default: false
+    },
+    popular: {
+        type: Boolean,
+        default: false
     }
 });
 
