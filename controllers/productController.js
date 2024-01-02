@@ -11,7 +11,7 @@ const { PAGE_SIZE } = require('../constants');
 
 // createProduct Endpoint/API
 const createProduct = asyncWrapper(async (req, res, next) => {
-    const { name, description, price, availableInStock, imageUrl, categoryId, newAdded, featured, popular } = req.body;
+    const { name, description, price, availableInStock, imageUrl, categoryId, newAdded, featured, popular, topSelling } = req.body;
 
     if (!name || !description || !price || !availableInStock || !imageUrl || !categoryId) {
         console.log('Missing required fields');
@@ -53,7 +53,8 @@ const createProduct = asyncWrapper(async (req, res, next) => {
         owner,
         newAdded,
         featured,
-        popular
+        popular,
+        topSelling
     });
 
     // Update the associated category with the new product reference
@@ -138,7 +139,8 @@ const getProducts = asyncWrapper(async (req, res, next) => {
             ratingDetails,
             newAdded: product.newAdded,
             featured: product.featured,
-            popular: product.popular
+            popular: product.popular,
+            topSelling: product.topSelling
         };
 
     }));

@@ -70,6 +70,10 @@ const productSchema = new mongoose.Schema({
     popular: {
         type: Boolean,
         default: false
+    },
+    topSelling: {
+        type: Boolean,
+        default: false
     }
 });
 
