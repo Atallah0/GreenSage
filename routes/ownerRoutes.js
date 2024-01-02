@@ -10,9 +10,13 @@ const {
     getOwner
 } = require('../controllers/userController')
 
+const {
+    getOwnerOrders
+} = require('../controllers/orderController')
+
 router.get('/', getOwners);
 router.get('/:id/v1/query', getOwner);
-
+router.get('/:id', getOwnerOrders);
 
 module.exports = router;
 
