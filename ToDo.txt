@@ -1,0 +1,10 @@
+update health status
+
+get All orders => ownerName                                             done
+get All orders for user => ownerName                                    done
+check product-cartItenms afetr itemDeletion or making an order          done
+
+4.) In get Product can you return the reviewer imageUrl
+5.) Can you add related products for a specific product?
+
+

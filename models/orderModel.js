@@ -25,6 +25,7 @@ const orderSchema = new mongoose.Schema({
         default: 'pending',
     },
     userAddress: {},
+    userName: {},
     totalPrice: Number,
     cartItems: [],
 });

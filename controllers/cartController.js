@@ -122,6 +122,7 @@ const addItemToCart = asyncWrapper(async (req, res, next) => {
             quantity,
             productId: fetchedProduct._id,
             itemTotalPrice: itemTotalPrice, // Add itemTotalPrice to the newCartItem
+            ownerName: fetchedProduct.owner
         };
 
         // Update the cart's total price and add the new cart item

@@ -52,6 +52,8 @@ const createOrder = asyncWrapper(async (req, res, next) => {
         return next(createCustomError('Invalid userAddressIndex', 400));
     }
 
+    const userName = `${user.firstName} ${user.lastName}`;
+
     // Get the selected address
     const selectedAddress = user.addresses[userAddressIndex];
 
@@ -68,8 +70,12 @@ const createOrder = asyncWrapper(async (req, res, next) => {
         shipmentStatus,
         userAddress: selectedAddress,
         totalPrice: adjustedTotalPrice,
-        cartItems
+        cartItems,
+        userName
     });
+
+    const cartItemsIds = cartItems.map(cartItem => cartItem._id)
+    console.log(cartItemsIds);
 
     // Update product stock in the cart
     await updateProductStockInCart(order._id);
@@ -93,11 +99,10 @@ const createOrder = asyncWrapper(async (req, res, next) => {
     });
 
     // Remove the cart item from the Product model's cartItems array for all products
-    await Product.updateMany({
-        cartItems: cart._id,
-    }, {
-        $pull: { cartItems: cart._id },
-    });
+    await Product.updateMany(
+        { cartItems: { $in: cartItemsIds } },
+        { $pullAll: { cartItems: cartItemsIds } }
+    );
 
     res.status(201).json({
         msg: 'Order created successfully',
@@ -183,6 +188,7 @@ const updateProductStockInCart = async (orderId) => {
     }
 };
 
+// updateOrderStatus Endpoint/API
 const updateOrderStatus = asyncWrapper(async (req, res, next) => {
     const { id: orderId } = req.params
     const { shipmentStatus } = req.body;
@@ -211,10 +217,55 @@ const updateOrderStatus = asyncWrapper(async (req, res, next) => {
     });
 });
 
+// getOwnerOrders Endpoint/API
+const getOwnerOrders = asyncWrapper(async (req, res, next) => {
+    const { id: userId } = req.params;
+
+    // Check if the userId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return next(createCustomError(`Invalid orderId ID: ${userId}`, 400));
+    }
+
+    const user = await User.findById(userId);
+    const fullName = `${user.firstName} ${user.lastName}`;
+    // console.log(fullName);
+
+    const orders = await Order.find({});
+    const allCartItems = orders.flatMap(order => order.cartItems);
+
+    const matchingCartItems = allCartItems.filter(item => item.ownerName === fullName);
+    // console.log(matchingCartItems);
+
+    const matchingOrders = orders
+        .filter(order => order.cartItems.some(cartItem => matchingCartItems.some(matchingItem => matchingItem._id.equals(cartItem._id))))
+        .map(order => {
+            const matchingOrder = {
+                ...order.toObject(),
+                cartItems: order.cartItems
+                    .filter(cartItem => matchingCartItems.some(matchingItem => matchingItem._id.equals(cartItem._id)))
+                    .flat(), // Flatten the cartItems array
+            };
+
+            // Calculate the correct total price for matchingOrder
+            matchingOrder.totalPrice = matchingOrder.cartItems.reduce((total, cartItem) => total + cartItem.itemTotalPrice, 0);
+
+            return matchingOrder;
+        });
+
+    const OrdersNumber = matchingOrders.length;
+
+    res.status(200).json({
+        success: true,
+        message: 'Owner orders fetched successfully',
+        data: { matchingOrders, OrdersNumber },
+    });
+});
+
 
 module.exports = {
     createOrder,
     getOrders,
     getOrdersForUser,
-    updateOrderStatus
+    updateOrderStatus,
+    getOwnerOrders
 };

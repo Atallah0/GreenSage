@@ -10,9 +10,9 @@ const { PAGE_SIZE } = require('../constants');
 
 // createUser Endpoint/API
 const createUser = asyncWrapper(async (req, res, next) => {
-    const { firstName, lastName, email, mobile, password, imageUrl, addresses } = req.body;
+    const { firstName, lastName, email, mobile, password, imageUrl, addresses, description } = req.body;
 
-    if (!firstName || !lastName || !email || !mobile || !password || !imageUrl || !addresses) {
+    if (!firstName || !lastName || !email || !mobile || !password || !imageUrl || !addresses || !description) {
         console.log('Missing required fields');
         return next(createCustomError('Please provide all required fields', 400));
     }
@@ -40,6 +40,7 @@ const createUser = asyncWrapper(async (req, res, next) => {
         role: 'owner',
         addresses: userAddresses,
         healthStatus: 0,
+        description
     });
 
     console.log('User created successfully');
@@ -141,9 +142,8 @@ const updateUser = asyncWrapper(async (req, res, next) => {
         email: existingUser.email,
         mobile: existingUser.mobile,
         password: existingUser.password,
-        imageUrl: existingUser.imageUrl
-        // addresses: existingUser.addresses
-
+        imageUrl: existingUser.imageUrl,
+        description: existingUser.description,
     };
 
     // Check if the req.body is the same as existing user data

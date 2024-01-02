@@ -28,6 +28,7 @@ const cartSchema = new mongoose.Schema({
                 required: true,
             },
             itemTotalPrice: {},
+            ownerName: {}
         },
     ],
     totalItems: {

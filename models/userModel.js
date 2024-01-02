@@ -128,7 +128,13 @@ const userSchema = new mongoose.Schema({
             type: Boolean,
             default: false,
         },
-    }
+    },
+    description: {
+        type: String,
+        trim: true,
+        minLength: [1, 'Description can not be less than 1 character'],
+        maxLength: [255, 'Description can not be longer than 50 characters']
+    },
 });
 
 module.exports = mongoose.model('User', userSchema);
