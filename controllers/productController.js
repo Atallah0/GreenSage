@@ -341,6 +341,7 @@ const deleteProduct = asyncWrapper(async (req, res, next) => {
     });
 });
 
+// search Endpoin/API
 const search = asyncWrapper(async (req, res, next) => {
     const { categoryName, productName, description, ownerName } = req.query;
 
@@ -379,6 +380,110 @@ const search = asyncWrapper(async (req, res, next) => {
     });
 });
 
+// filter Endpoin/API
+const filter = asyncWrapper(async (req, res, next) => {
+    const { topRated, newAdded, featured, popular, topSelling } = req.query;
+
+    const query = {};
+
+    // Populate the 'ratings' field for each product
+    const products = await Product.find({})
+        .populate({
+            path: 'ratings',
+            select: '-ratingId -__v'
+        })
+
+    if (topRated === 'true') {
+        const filteredProducts = products.filter(product => product.averageRating >= 4.25);
+
+        const productIds = filteredProducts.map((product) => product._id);
+
+        query._id = { $in: productIds };
+    }
+
+    if (newAdded === 'true') {
+        // If topRated is true, filter products with average rating above 4.0
+        query.newAdded = true;
+    }
+
+    if (featured === 'true') {
+        // If topRated is true, filter products with average rating above 4.0
+        query.featured = true;
+    }
+
+    if (popular === 'true') {
+        // If topRated is true, filter products with average rating above 4.0
+        query.popular = true;
+    }
+
+    if (topSelling === 'true') {
+        // If topRated is true, filter products with average rating above 4.0
+        query.topSelling = true;
+    }
+
+    const filterdProducts = await Product.find(query)
+        .populate({
+            path: 'ratings',
+            select: '-ratingId -__v'
+        })
+
+    // Access the virtual field 'averageRating' for each product
+    const productsWithDetails = await Promise.all(filterdProducts.map(async (product) => {
+        const categoryId = product.categoryId;
+        const categoryName = await getCategoryNameById(categoryId);
+
+        const averageRating = product.averageRating
+
+        // Fetch user details for each rating
+        const userIds = product.ratings.map(rating => rating.userId);
+        const ratingUsers = await Promise.all(userIds.map(userId => User.findById(userId)));
+
+        // Extract relevant information from each user
+        const ratingDetails = product.ratings.map((rating, index) => ({
+            rating: {
+                _id: rating._id,
+                userName: ratingUsers[index] ? `${ratingUsers[index].firstName} ${ratingUsers[index].lastName}` : "Unknown",
+                title: rating.title,
+                rating: rating.rating,
+                description: rating.description,
+            },
+        }));
+
+        return {
+            _id: product._id,
+            owner: product.owner,
+            categoryName,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            availableInStock: product.availableInStock,
+            imageUrl: product.imageUrl,
+            cartItems: product.cartItems,
+            favorits: product.favorits,
+            averageRating,
+            ratingCount: product.ratings.length,
+            ratingDetails,
+            newAdded: product.newAdded,
+            featured: product.featured,
+            popular: product.popular,
+            topSelling: product.topSelling
+        };
+
+    }));
+
+    // const averageRating = products.averageRating;
+    // console.log(averageRating);
+
+    res.status(200).json({
+        msg: 'Products fetched successfully',
+        success: true,
+        data: { productsWithDetails }
+    });
+});
+
+
+
+
 const getRelatedProducts = asyncWrapper(async (req, res, next) => {
     const userId = req.params.userId;
 
@@ -411,5 +516,6 @@ module.exports = {
     updateProduct,
     deleteProduct,
     getRelatedProducts,
-    search
+    search,
+    filter
 }

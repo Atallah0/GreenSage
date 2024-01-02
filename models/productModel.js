@@ -90,4 +90,6 @@ productSchema.virtual('averageRating').get(function () {
     return average;
 });
 
+// productSchema.set('toJSON', { getters: true });
+
 module.exports = mongoose.model('Product', productSchema);
