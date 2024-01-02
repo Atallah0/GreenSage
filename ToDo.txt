@@ -1,3 +1,0 @@
-can't create Orderf cartItems is empty in OrderController
-change shipment status ==> default = pending in OrderController
-rating min and max 

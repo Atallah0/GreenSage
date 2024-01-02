@@ -185,6 +185,22 @@ const getProduct = asyncWrapper(async (req, res, next) => {
     // Return the count of ratings
     const ratingCount = product.ratings.length;
 
+    const ownerName = product.owner
+    // Split the full name into an array of first and last names
+    const nameParts = ownerName.split(' ');
+    // Extract firstName and lastName
+    const firstName = nameParts[0]; // "John"
+    const lastName = nameParts.slice(1).join(' '); // "Doe"
+
+    const ownerDetails = await User.find({
+        firstName: firstName,
+        lastName: lastName
+    }, {
+        healthStatus: 0, ratings: 0, orders: 0
+    });
+
+    // console.log(ownerDetails);
+
     // Fetch user details for each rating
     const userIds = product.ratings.map(rating => rating.userId);
     const ratingUsers = await Promise.all(userIds.map(userId => User.findById(userId)));
@@ -222,6 +238,7 @@ const getProduct = asyncWrapper(async (req, res, next) => {
                 averageRating: product.averageRating,
                 ratingCount,
                 ratingDetails,
+                ownerDetails
             }
         }
     });
