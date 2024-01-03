@@ -212,6 +212,7 @@ const getProduct = asyncWrapper(async (req, res, next) => {
         rating: {
             _id: rating._id,
             userName: ratingUsers[index] ? `${ratingUsers[index].firstName} ${ratingUsers[index].lastName}` : "Unknown",
+            userImage: ratingUsers[index] ? ratingUsers[index].imageUrl : 'Unknown',
             title: rating.title,
             rating: rating.rating,
             description: rating.description,
@@ -411,7 +412,7 @@ const filter = asyncWrapper(async (req, res, next) => {
         })
 
     if (topRated === 'true') {
-        const filteredProducts = products.filter(product => product.averageRating >= 4.25);
+        const filteredProducts = products.filter(product => product.averageRating >= 3.50);
 
         const productIds = filteredProducts.map((product) => product._id);
 
