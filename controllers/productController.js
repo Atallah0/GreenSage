@@ -7,7 +7,6 @@ const { createCustomError } = require('../utils/customError');
 const mongoose = require('mongoose');
 const { getCategoryNameById } = require('../services/categoryServices');
 const { fetchRelatedProducts } = require('../services/productService');
-
 const { PAGE_SIZE } = require('../constants');
 
 
