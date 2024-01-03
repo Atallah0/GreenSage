@@ -6,6 +6,8 @@ const asyncWrapper = require('../middleware/asyncWrapper');
 const { createCustomError } = require('../utils/customError');
 const mongoose = require('mongoose');
 const { getCategoryNameById } = require('../services/categoryServices');
+const { fetchRelatedProducts } = require('../services/productService');
+
 const { PAGE_SIZE } = require('../constants');
 
 
@@ -181,6 +183,7 @@ const getProduct = asyncWrapper(async (req, res, next) => {
 
     // Fetch the category name
     const categoryName = await getCategoryNameById(categoryId);
+    const relatedProducts = await fetchRelatedProducts(productId)
 
     // Return the count of ratings
     const ratingCount = product.ratings.length;
@@ -240,7 +243,8 @@ const getProduct = asyncWrapper(async (req, res, next) => {
                 ratingCount,
                 ratingDetails,
                 ownerDetails
-            }
+            },
+            relatedProducts
         }
     });
 });
@@ -502,7 +506,7 @@ const filter = asyncWrapper(async (req, res, next) => {
 
 
 
-const getRelatedProducts = asyncWrapper(async (req, res, next) => {
+const getUserRelatedProducts = asyncWrapper(async (req, res, next) => {
     const userId = req.params.userId;
 
     // Find user by ID
@@ -533,7 +537,7 @@ module.exports = {
     getProduct,
     updateProduct,
     deleteProduct,
-    getRelatedProducts,
+    getUserRelatedProducts,
     search,
     filter
 }

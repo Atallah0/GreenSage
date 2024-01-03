@@ -11,7 +11,7 @@ const {
     getProduct,
     updateProduct,
     deleteProduct,
-    getRelatedProducts,
+    getUserRelatedProducts,
     search,
     filter
 } = require('../controllers/productController')
@@ -21,7 +21,7 @@ router.get('/v1/query', getProducts);
 router.get('/:id', getProduct);
 router.put('/:id', updateProduct);
 router.delete('/:id', deleteProduct);
-router.get('/users/:userId', getRelatedProducts)
+router.get('/users/:userId', getUserRelatedProducts)
 router.get('/v1/search/', search)
 router.get('/v1/filter/', filter)
 
