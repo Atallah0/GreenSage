@@ -610,6 +610,18 @@ const filter = asyncWrapper(async (req, res, next) => {
 const getUserRelatedProducts = asyncWrapper(async (req, res, next) => {
     const userId = req.params.userId;
 
+    const { pageNumber } = req.query;
+    if (!pageNumber) {
+        return next(createCustomError('Page Number is missing', 400));
+    }
+
+    if (isNaN(pageNumber) || pageNumber < 1) {
+        return next(createCustomError('Invalid Page Number', 400));
+    }
+
+    const newPageOffset = pageNumber === 1 ? 0 : (pageNumber - 1) * PAGE_SIZE;
+
+
     // Find user by ID
     const user = await User.findById(userId);
     if (!user) {
@@ -626,9 +638,69 @@ const getUserRelatedProducts = asyncWrapper(async (req, res, next) => {
     }
 
     // Find products matching the healthStatus criteria
-    const products = await Product.find({ $or: healthStatusQuery });
+    const products = await Product.find({ $or: healthStatusQuery })
+        .populate('ratings', '-ratingId -__v')
+        .skip(newPageOffset)
+        .limit(PAGE_SIZE)
 
-    res.status(200).json({ success: true, data: products });
+    const totalProducts = await Product.find({ $or: healthStatusQuery }).count();
+    const totalPages = Math.ceil(totalProducts / PAGE_SIZE);
+
+    if (pageNumber > totalPages) {
+        return next(createCustomError('Page Number exceeds total pages', 400));
+    }
+
+
+    // Access the virtual field 'averageRating' for each product
+    const productsWithDetails = await Promise.all(products.map(async (product) => {
+        const categoryId = product.categoryId;
+        const categoryName = await getCategoryNameById(categoryId);
+
+        const averageRating = product.averageRating
+
+        // Fetch user details for each rating
+        const userIds = product.ratings.map(rating => rating.userId);
+        const ratingUsers = await Promise.all(userIds.map(userId => User.findById(userId)));
+
+        // Extract relevant information from each user
+        const ratingDetails = product.ratings.map((rating, index) => ({
+            rating: {
+                _id: rating._id,
+                userName: ratingUsers[index] ? `${ratingUsers[index].firstName} ${ratingUsers[index].lastName}` : "Unknown",
+                title: rating.title,
+                rating: rating.rating,
+                description: rating.description,
+            },
+        }));
+
+        return {
+            _id: product._id,
+            owner: product.owner,
+            categoryName,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            availableInStock: product.availableInStock,
+            imageUrl: product.imageUrl,
+            cartItems: product.cartItems,
+            favorits: product.favorits,
+            averageRating,
+            ratingCount: product.ratings.length,
+            ratingDetails,
+            newAdded: product.newAdded,
+            featured: product.featured,
+            popular: product.popular,
+            topSelling: product.topSelling
+        };
+
+    }));
+
+
+    res.status(200).json({
+        success: true,
+        msg: `User related products fetched successfully`,
+        data: { productsWithDetails, totalProducts, totalPages }
+    });
 });
 
 

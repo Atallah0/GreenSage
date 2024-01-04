@@ -21,7 +21,7 @@ router.get('/v1/query', getProducts);
 router.get('/:id', getProduct);
 router.put('/:id', updateProduct);
 router.delete('/:id', deleteProduct);
-router.get('/users/:userId', getUserRelatedProducts)
+router.get('/users/:userId/v1/query', getUserRelatedProducts)
 router.get('/v1/search/v1/query', search)
 router.get('/v1/filter/v1/query', filter)
 
