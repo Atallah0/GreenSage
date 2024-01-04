@@ -182,7 +182,6 @@ const getProduct = asyncWrapper(async (req, res, next) => {
 
     // Fetch the category name
     const categoryName = await getCategoryNameById(categoryId);
-    const relatedProducts = await fetchRelatedProducts(productId)
 
     // Return the count of ratings
     const ratingCount = product.ratings.length;
@@ -223,6 +222,63 @@ const getProduct = asyncWrapper(async (req, res, next) => {
         },
     }));
 
+    // Fetch relatedProducts
+    const relatedProducts = await fetchRelatedProducts(productId)
+    // console.log(relatedProducts);
+    // Map over related products and fetch details
+    const relatedProductsDetails = relatedProducts.map(async (relatedProduct) => {
+        // Fetch user details for each rating
+        const relatedProductUserIds = relatedProduct.ratings.map(rating => rating.userId);
+        const relatedProductRatingUsers = await Promise.all(relatedProductUserIds.map(userId => User.findById(userId)));
+
+        const ownerName = relatedProduct.owner
+        // Split the full name into an array of first and last names
+        const nameParts = ownerName.split(' ');
+        // Extract firstName and lastName
+        const firstName = nameParts[0]; // "John"
+        const lastName = nameParts.slice(1).join(' '); // "Doe"
+
+        const relatedProductOwnerDetails = await User.find({
+            firstName: firstName,
+            lastName: lastName
+        }, {
+            healthStatus: 0, ratings: 0, orders: 0
+        });
+
+        const relatedProductsRtingDetails = relatedProduct.ratings.map((rating, index) => ({
+            rating: {
+                _id: rating._id,
+                userName: relatedProductRatingUsers[index] ? `${relatedProductRatingUsers[index].firstName} ${relatedProductRatingUsers[index].lastName}` : "Unknown",
+                userImage: relatedProductRatingUsers[index] ? relatedProductRatingUsers[index].imageUrl : 'Unknown',
+                title: rating.title,
+                rating: rating.rating,
+                description: rating.description,
+                // userId: rating.userId,
+                // productId: rating.productId,
+            },
+        }));
+
+        return {
+            _id: relatedProduct._id,
+            owner: relatedProduct.owner,
+            categoryName,
+            name: relatedProduct.name,
+            description: relatedProduct.description,
+            price: relatedProduct.price,
+            availableInStock: relatedProduct.availableInStock,
+            imageUrl: relatedProduct.imageUrl,
+            cartItems: relatedProduct.cartItems,
+            favorits: relatedProduct.favorits,
+            averageRating: relatedProduct.averageRating,
+            ratingCount: relatedProduct.ratings.length,
+            relatedProductsRtingDetails,
+            relatedProductOwnerDetails
+        };
+    });
+
+    // Wait for all related product details to be fetched
+    const allRelatedProductsDetails = await Promise.all(relatedProductsDetails);
+
     res.status(200).json({
         msg: `Product fetched successfully`,
         success: true,
@@ -243,7 +299,7 @@ const getProduct = asyncWrapper(async (req, res, next) => {
                 ratingDetails,
                 ownerDetails
             },
-            relatedProducts
+            relatedProducts: allRelatedProductsDetails
         }
     });
 });

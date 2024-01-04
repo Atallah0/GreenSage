@@ -20,7 +20,7 @@ const fetchRelatedProducts = async (productId, limit = 3) => {
         const allRelatedProducts = await Product.find({
             _id: { $ne: productId },
             categoryId: category._id,
-        })
+        }).populate('ratings', '-ratingId -__v')
             .lean();
 
         // Shuffle the array randomly

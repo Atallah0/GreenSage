@@ -181,7 +181,7 @@ const deleteRating = asyncWrapper(async (req, res, next) => {
     // Remove the rating reference from the associated user
     await User.findByIdAndUpdate(
         userId,
-        { $pull: { ratings: userId } },
+        { $pull: { ratings: ratingId } },
         { new: true }
     );
 
