@@ -10,8 +10,8 @@ check product-cartItenms afetr itemDeletion or making an order          done
 
 
 I added a rating that was for a vendor by mistake can you delete from DB John Doe                       done
-Asam3 when your free make the related products object return the same like the object in products.      
-make getUserRelatedProducts return the same like the object in products
-can you make pagination for the serach products api
+Asam3 when your free make the related products object return the same like the object in products.      Half Done
+make getUserRelatedProducts return the same like the object in products   ME
+can you make pagination for the serach products api   and    filter                                     done
 search with filter
 

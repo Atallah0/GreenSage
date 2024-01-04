@@ -227,6 +227,14 @@ const getProduct = asyncWrapper(async (req, res, next) => {
     // console.log(relatedProducts);
     // Map over related products and fetch details
     const relatedProductsDetails = relatedProducts.map(async (relatedProduct) => {
+        const ratingsLength = relatedProduct.ratings.length;
+
+        const relatedProductAverageRating = ratingsLength > 0
+            ? relatedProduct.ratings.reduce((acc, rating) => acc + Number(rating.rating), 0) / ratingsLength
+            : 0;
+
+        console.log(relatedProductAverageRating);
+
         // Fetch user details for each rating
         const relatedProductUserIds = relatedProduct.ratings.map(rating => rating.userId);
         const relatedProductRatingUsers = await Promise.all(relatedProductUserIds.map(userId => User.findById(userId)));
@@ -269,7 +277,7 @@ const getProduct = asyncWrapper(async (req, res, next) => {
             imageUrl: relatedProduct.imageUrl,
             cartItems: relatedProduct.cartItems,
             favorits: relatedProduct.favorits,
-            averageRating: relatedProduct.averageRating,
+            relatedProductAverageRating,
             ratingCount: relatedProduct.ratings.length,
             relatedProductsRtingDetails,
             relatedProductOwnerDetails
@@ -420,7 +428,17 @@ const deleteProduct = asyncWrapper(async (req, res, next) => {
 
 // search Endpoin/API
 const search = asyncWrapper(async (req, res, next) => {
-    const { categoryName, productName, description, ownerName } = req.query;
+    const { pageNumber, categoryName, productName, description, ownerName } = req.query;
+
+    if (!pageNumber) {
+        return next(createCustomError('Page Number is missing', 400));
+    }
+
+    if (isNaN(pageNumber) || pageNumber < 1) {
+        return next(createCustomError('Invalid Page Number', 400));
+    }
+
+    const newPageOffset = pageNumber === 1 ? 0 : (pageNumber - 1) * PAGE_SIZE;
 
     const query = {};
 
@@ -448,18 +466,38 @@ const search = asyncWrapper(async (req, res, next) => {
         query.owner = { $regex: ownerName, $options: 'i' };
     }
 
-    const products = await Product.find(query);
+    const products = await Product.find(query)
+        .skip(newPageOffset)
+        .limit(PAGE_SIZE)
+
+    const totalProducts = await Product.find(query).count();
+    const totalPages = Math.ceil(totalProducts / PAGE_SIZE);
+
+    if (pageNumber > totalPages) {
+        return next(createCustomError('Page Number exceeds total pages', 400));
+    }
 
     res.status(200).json({
         success: true,
         msg: 'Products fetched successfully',
-        data: products,
+        data: { products, totalProducts, totalPages }
     });
 });
 
 // filter Endpoin/API
 const filter = asyncWrapper(async (req, res, next) => {
-    const { topRated, newAdded, featured, popular, topSelling } = req.query;
+    const { pageNumber, topRated, newAdded, featured, popular, topSelling } = req.query;
+
+    if (!pageNumber) {
+        return next(createCustomError('Page Number is missing', 400));
+    }
+
+    if (isNaN(pageNumber) || pageNumber < 1) {
+        return next(createCustomError('Invalid Page Number', 400));
+    }
+
+    const newPageOffset = pageNumber === 1 ? 0 : (pageNumber - 1) * PAGE_SIZE;
+
 
     const query = {};
 
@@ -502,7 +540,15 @@ const filter = asyncWrapper(async (req, res, next) => {
         .populate({
             path: 'ratings',
             select: '-ratingId -__v'
-        })
+        }).skip(newPageOffset)
+        .limit(PAGE_SIZE)
+
+    const totalProducts = await Product.find(query).count();
+    const totalPages = Math.ceil(totalProducts / PAGE_SIZE);
+
+    if (pageNumber > totalPages) {
+        return next(createCustomError('Page Number exceeds total pages', 400));
+    }
 
     // Access the virtual field 'averageRating' for each product
     const productsWithDetails = await Promise.all(filterdProducts.map(async (product) => {
@@ -554,7 +600,7 @@ const filter = asyncWrapper(async (req, res, next) => {
     res.status(200).json({
         msg: 'Products fetched successfully',
         success: true,
-        data: { productsWithDetails }
+        data: { productsWithDetails, totalProducts, totalPages }
     });
 });
 
