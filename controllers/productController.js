@@ -604,9 +604,7 @@ const filter = asyncWrapper(async (req, res, next) => {
     });
 });
 
-
-
-
+// getUserRelatedProducts Endpoint/API
 const getUserRelatedProducts = asyncWrapper(async (req, res, next) => {
     const userId = req.params.userId;
 
@@ -704,6 +702,95 @@ const getUserRelatedProducts = asyncWrapper(async (req, res, next) => {
 });
 
 
+// searchAndFilter Endpoint/API
+const searchAndFilter = asyncWrapper(async (req, res, next) => {
+    const { pageNumber, categoryName, productName, description, ownerName, topRated, newAdded, featured, popular, topSelling } = req.query;
+
+    if (!pageNumber) {
+        return next(createCustomError('Page Number is missing', 400));
+    }
+
+    if (isNaN(pageNumber) || pageNumber < 1) {
+        return next(createCustomError('Invalid Page Number', 400));
+    }
+
+    const newPageOffset = pageNumber === 1 ? 0 : (pageNumber - 1) * PAGE_SIZE;
+
+    const query = {};
+
+    if (categoryName) {
+        const categoryRegex = new RegExp(categoryName, 'i');
+        const category = await Category.findOne({ name: { $regex: categoryRegex } });
+
+        if (category) {
+            query.categoryId = category._id;
+        } else {
+            return res.status(400).json({ success: false, msg: 'Category not found' });
+        }
+    }
+
+    if (productName) {
+        query.name = { $regex: productName, $options: 'i' };
+    }
+
+    if (description) {
+        query.description = { $regex: description, $options: 'i' };
+    }
+
+    if (ownerName) {
+        query.owner = { $regex: ownerName, $options: 'i' };
+    }
+
+    const searchResults = await Product.find(query);
+
+    const filteredResults = applyFilterLogic(searchResults, { topRated, newAdded, featured, popular, topSelling });
+
+    const totalFilteredProducts = filteredResults.length;
+    const totalPages = Math.ceil(totalFilteredProducts / PAGE_SIZE);
+
+    const paginatedResults = filteredResults.slice(newPageOffset, newPageOffset + PAGE_SIZE);
+
+    if (pageNumber > totalPages) {
+        return next(createCustomError('Page Number exceeds total pages', 400));
+    }
+
+    res.status(200).json({
+        success: true,
+        msg: 'Products fetched successfully',
+        data: { products: paginatedResults, totalProducts: totalFilteredProducts, totalPages }
+    });
+});
+
+// Helper function to apply filter logic on search results
+const applyFilterLogic = (products, { topRated, newAdded, featured, popular, topSelling }) => {
+    let filteredResults = products;
+
+    if (topRated === 'true') {
+        const ratingThreshold = 3.50; // Set your desired rating threshold
+        filteredResults = filteredResults.filter(product => product.averageRating >= ratingThreshold);
+    }
+
+    if (newAdded === 'true') {
+        filteredResults = filteredResults.filter(product => product.newAdded === true);
+    }
+
+    if (featured === 'true') {
+        filteredResults = filteredResults.filter(product => product.featured === true);
+    }
+
+    if (popular === 'true') {
+        filteredResults = filteredResults.filter(product => product.popular === true);
+    }
+
+    if (topSelling === 'true') {
+        filteredResults = filteredResults.filter(product => product.topSelling === true);
+    }
+
+    return filteredResults;
+};
+
+
+
 module.exports = {
     createProduct,
     getProducts,
@@ -712,5 +799,6 @@ module.exports = {
     deleteProduct,
     getUserRelatedProducts,
     search,
-    filter
+    filter,
+    searchAndFilter
 }

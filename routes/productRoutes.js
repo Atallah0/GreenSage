@@ -13,7 +13,8 @@ const {
     deleteProduct,
     getUserRelatedProducts,
     search,
-    filter
+    filter,
+    searchAndFilter
 } = require('../controllers/productController')
 
 router.post('/', passport.authenticate('jwt', { session: false }), isOwner, createProduct);
@@ -24,7 +25,7 @@ router.delete('/:id', deleteProduct);
 router.get('/users/:userId/v1/query', getUserRelatedProducts)
 router.get('/v1/search/v1/query', search)
 router.get('/v1/filter/v1/query', filter)
-
+router.get('/v1/searchFilter/v1/query', searchAndFilter)
 
 
 module.exports = router;
