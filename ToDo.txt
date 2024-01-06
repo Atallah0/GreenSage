@@ -17,3 +17,5 @@ search with filter                                                              
 
 in search products.averageRating                                                                        done
 in search/filter averageRating, categoryName                                                            done
+
+check the Delete User Associations 

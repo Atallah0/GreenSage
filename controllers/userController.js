@@ -304,6 +304,36 @@ const getOwner = asyncWrapper(async (req, res, next) => {
 });
 
 
+const updateHealthStatus = asyncWrapper(async (req, res, next) => {
+    const { id: userId } = req.params;
+    const { healthStatus } = req.body;
+
+    // Check if the userId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return next(createCustomError(`Invalid user Id: ${userId}`, 400));
+    }
+
+    if (!healthStatus) {
+        return next(createCustomError(`Invalid request`, 400));
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { $set: { healthStatus } },
+        { new: true, runValidators: true } // Return the updated document
+    );
+
+    if (!updatedUser) {
+        return next(createCustomError(`User not found`, 404));
+    }
+
+    res.status(200).json({
+        success: true,
+        msg: 'Health status updated successfully',
+        data: updatedUser
+    });
+});
+
 module.exports = {
     createUser,
     getUsers,
@@ -311,5 +341,6 @@ module.exports = {
     updateUser,
     deleteUser,
     getOwners,
-    getOwner
+    getOwner,
+    updateHealthStatus
 };
