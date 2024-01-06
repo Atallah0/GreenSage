@@ -13,5 +13,7 @@ I added a rating that was for a vendor by mistake can you delete from DB John Do
 Asam3 when your free make the related products object return the same like the object in products.      Half Done
 make getUserRelatedProducts return the same like the object in products   ME                            done
 can you make pagination for the serach products api   and    filter                                     done
-search with filter                                                                                      in progress
+search with filter                                                                                      done
 
+in search products.averageRating                                                                        done
+in search/filter averageRating, categoryName                                                            done

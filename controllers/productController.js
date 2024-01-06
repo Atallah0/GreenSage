@@ -6,7 +6,7 @@ const asyncWrapper = require('../middleware/asyncWrapper');
 const { createCustomError } = require('../utils/customError');
 const mongoose = require('mongoose');
 const { getCategoryNameById } = require('../services/categoryServices');
-const { fetchRelatedProducts } = require('../services/productService');
+const { fetchRelatedProducts, applyFilterLogic } = require('../services/productService');
 const { PAGE_SIZE } = require('../constants');
 
 
@@ -741,7 +741,43 @@ const searchAndFilter = asyncWrapper(async (req, res, next) => {
         query.owner = { $regex: ownerName, $options: 'i' };
     }
 
-    const searchResults = await Product.find(query);
+    const searchResults = await Product.aggregate([
+        {
+            $match: query // Your existing query conditions
+        },
+        {
+            $lookup: {
+                from: 'ratings',
+                localField: '_id',
+                foreignField: 'productId',
+                as: 'ratings'
+            }
+        },
+        {
+            $lookup: {
+                from: 'categories', // Assuming your categories collection is named 'categories'
+                localField: 'categoryId',
+                foreignField: '_id',
+                as: 'category'
+            }
+        },
+        {
+            $addFields: {
+                averageRating: {
+                    $ifNull: [{ $avg: '$ratings.rating' }, 0]
+                },
+                categoryName: {
+                    $arrayElemAt: ['$category.name', 0] // Assuming 'name' is the field in the Category model
+                }
+            }
+        },
+        {
+            $project: {
+                category: 0, // Exclude the 'category' field
+                ratings: 0
+            }
+        }
+    ]);
 
     const filteredResults = applyFilterLogic(searchResults, { topRated, newAdded, featured, popular, topSelling });
 
@@ -760,35 +796,6 @@ const searchAndFilter = asyncWrapper(async (req, res, next) => {
         data: { products: paginatedResults, totalProducts: totalFilteredProducts, totalPages }
     });
 });
-
-// Helper function to apply filter logic on search results
-const applyFilterLogic = (products, { topRated, newAdded, featured, popular, topSelling }) => {
-    let filteredResults = products;
-
-    if (topRated === 'true') {
-        const ratingThreshold = 3.50; // Set your desired rating threshold
-        filteredResults = filteredResults.filter(product => product.averageRating >= ratingThreshold);
-    }
-
-    if (newAdded === 'true') {
-        filteredResults = filteredResults.filter(product => product.newAdded === true);
-    }
-
-    if (featured === 'true') {
-        filteredResults = filteredResults.filter(product => product.featured === true);
-    }
-
-    if (popular === 'true') {
-        filteredResults = filteredResults.filter(product => product.popular === true);
-    }
-
-    if (topSelling === 'true') {
-        filteredResults = filteredResults.filter(product => product.topSelling === true);
-    }
-
-    return filteredResults;
-};
-
 
 
 module.exports = {

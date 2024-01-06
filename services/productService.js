@@ -38,4 +38,35 @@ const fetchRelatedProducts = async (productId, limit = 3) => {
     }
 };
 
-module.exports = { fetchRelatedProducts };
+// Helper function to apply filter logic on search results
+const applyFilterLogic = (products, { topRated, newAdded, featured, popular, topSelling }) => {
+    let filteredResults = products;
+
+    if (topRated === 'true') {
+        const ratingThreshold = 3.50; // Set your desired rating threshold
+        filteredResults = filteredResults.filter(product => product.averageRating >= ratingThreshold);
+    }
+
+    if (newAdded === 'true') {
+        filteredResults = filteredResults.filter(product => product.newAdded === true);
+    }
+
+    if (featured === 'true') {
+        filteredResults = filteredResults.filter(product => product.featured === true);
+    }
+
+    if (popular === 'true') {
+        filteredResults = filteredResults.filter(product => product.popular === true);
+    }
+
+    if (topSelling === 'true') {
+        filteredResults = filteredResults.filter(product => product.topSelling === true);
+    }
+
+    return filteredResults;
+};
+
+module.exports = {
+    fetchRelatedProducts,
+    applyFilterLogic
+};
