@@ -8,12 +8,14 @@ require('../utils/auth/passport');
 const {
     createOrder,
     getOrders,
+    getOrder,
     getOrdersForUser,
     updateOrderStatus
 } = require('../controllers/orderController')
 
 router.post('/:id', createOrder);
 router.get('/', getOrders);
+router.get('/:id/order', getOrder);
 router.get('/:id', getOrdersForUser);
 router.put('/:id', passport.authenticate('jwt', { session: false }), isOwner, hasAccessToOwnData, updateOrderStatus);
 

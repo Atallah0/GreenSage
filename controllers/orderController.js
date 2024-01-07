@@ -111,6 +111,32 @@ const createOrder = asyncWrapper(async (req, res, next) => {
     });
 });
 
+// Function to update product stock in the cart
+const updateProductStockInCart = async (orderId) => {
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+        throw new Error('Order not found');
+    }
+
+    for (const cartItem of order.cartItems) {
+        const productId = cartItem.productId;
+        const quantityBought = cartItem.quantity;
+
+        const product = await Product.findById(productId);
+        if (!product) {
+            throw new Error('Product not found');
+        }
+
+        if (quantityBought > product.availableInStock) {
+            throw new Error('Insufficient stock for the product');
+        }
+
+        product.availableInStock -= quantityBought;
+        await product.save();
+    }
+};
+
 // getOrders Endpoint/API
 const getOrders = asyncWrapper(async (req, res, next) => {
     const orders = await Order.find();
@@ -162,31 +188,24 @@ const getOrdersForUser = asyncWrapper(async (req, res, next) => {
     });
 });
 
-// Function to update product stock in the cart
-const updateProductStockInCart = async (orderId) => {
+// getOrder Endpoint/API
+const getOrder = asyncWrapper(async (req, res, next) => {
+    const { id: orderId } = req.params;
+
+    // Check if the orderId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+        return next(createCustomError(`Invalid orderId ID: ${orderId}`, 400));
+    }
+
     const order = await Order.findById(orderId);
 
-    if (!order) {
-        throw new Error('Order not found');
-    }
+    res.status(200).json({
+        success: true,
+        msg: 'Order fetched successfully',
+        data: order,
+    });
 
-    for (const cartItem of order.cartItems) {
-        const productId = cartItem.productId;
-        const quantityBought = cartItem.quantity;
-
-        const product = await Product.findById(productId);
-        if (!product) {
-            throw new Error('Product not found');
-        }
-
-        if (quantityBought > product.availableInStock) {
-            throw new Error('Insufficient stock for the product');
-        }
-
-        product.availableInStock -= quantityBought;
-        await product.save();
-    }
-};
+});
 
 // updateOrderStatus Endpoint/API
 const updateOrderStatus = asyncWrapper(async (req, res, next) => {
@@ -265,6 +284,7 @@ const getOwnerOrders = asyncWrapper(async (req, res, next) => {
 module.exports = {
     createOrder,
     getOrders,
+    getOrder,
     getOrdersForUser,
     updateOrderStatus,
     getOwnerOrders

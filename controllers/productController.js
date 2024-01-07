@@ -233,7 +233,7 @@ const getProduct = asyncWrapper(async (req, res, next) => {
             ? relatedProduct.ratings.reduce((acc, rating) => acc + Number(rating.rating), 0) / ratingsLength
             : 0;
 
-        console.log(relatedProductAverageRating);
+        // console.log(relatedProductAverageRating);
 
         // Fetch user details for each rating
         const relatedProductUserIds = relatedProduct.ratings.map(rating => rating.userId);
