@@ -27,14 +27,39 @@ const fetchCart = asyncWrapper(async (req, res, next) => {
         return next(createCustomError(`Invalid User`, 403));
     }
 
+    // Fetch additional information for each product in cartItems
+    const cartItemsWithDetails = await Promise.all(
+        cart.cartItems.map(async (cartItem) => {
+            const product = await Product.findById(cartItem.productId).populate('ratings');
+            // console.log(product);
+
+            if (!product) {
+                console.log(`Error Fetching Product for productId: ${cartItem.productId}`);
+                return next(createCustomError(`Product not found`, 404));
+            }
+
+            return {
+                ...cartItem.toObject(),
+                averageRating: product.averageRating,
+                productName: product.name,
+            };
+        })
+    );
+
+    // Create a new cart object with updated cartItems
+    const updatedCart = {
+        ...cart.toObject(),
+        cartItems: cartItemsWithDetails,
+    };
+
     // The cart is Fetched and returned in the response
-    console.log(`Fetching Cart from userId(${userId}) Successfully`);
     return res.status(200).json({
         success: true,
         message: `Cart successfully Fetched`,
-        data: cart,
+        data: updatedCart,
     });
 });
+
 
 const addItemToCart = asyncWrapper(async (req, res, next) => {
     const userId = req.params.userId;

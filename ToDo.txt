@@ -21,7 +21,7 @@ in search/filter averageRating, categoryName                                    
 check the Delete User Associations 
 
 1.) Get Order by Id                                                                                                     done
-2.) In fetchCart --> in the cartitems structure add averageRating, productName
+2.) In fetchCart --> in the cartitems structure add averageRating, productName                                          done
 3.) In fetch wishlist --> in the wishlist items structure add productName, averageRating, price, avalibleInStock
 4.) In the JWT token returned in the login add userType in it (solved) (edited) 
 5.) In the related products added averageRating
