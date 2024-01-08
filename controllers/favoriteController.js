@@ -37,6 +37,7 @@ const fetchFavorite = asyncWrapper(async (req, res, next) => {
                 averageRating: product.averageRating,
                 price: product.price,
                 availableInStock: product.availableInStock,
+                productImage: product.imageUrl,
             };
         })
     );

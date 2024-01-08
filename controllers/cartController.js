@@ -42,6 +42,7 @@ const fetchCart = asyncWrapper(async (req, res, next) => {
                 ...cartItem.toObject(),
                 averageRating: product.averageRating,
                 productName: product.name,
+                productImage: product.imageUrl,
             };
         })
     );
