@@ -24,4 +24,4 @@ check the Delete User Associations
 2.) In fetchCart --> in the cartitems structure add averageRating, productName                                          done
 3.) In fetch wishlist --> in the wishlist items structure add productName, averageRating, price, avalibleInStock        done
 4.) In the JWT token returned in the login add userType in it (solved) (edited)                                         done
-5.) In the related products added averageRating
+5.) In the related products added averageRating                                                                         done
