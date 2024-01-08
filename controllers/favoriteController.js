@@ -14,24 +14,44 @@ const fetchFavorite = asyncWrapper(async (req, res, next) => {
         return next(createCustomError(`Invalid user ID: ${userId}`, 400));
     }
 
-    // logging the process
-    console.log(`Fetching Favorite from userId: ${userId}`);
-
     // Fetching the favorite based on the user
-    const favorite = await Favorite.findOne({ userId });
+    let favorite = await Favorite.findOne({ userId });
 
     // If the favorite is not found return error
     if (!favorite) {
-        console.log(`Error Fetching Favorite from userId: ${userId}`);
         return next(createCustomError(`Invalid User`, 403));
     }
 
+    // Fetch additional information for each product in items
+    const itemsWithDetails = await Promise.all(
+        favorite.items.map(async (item) => {
+            const product = await Product.findById(item.productId).populate('ratings');
+
+            if (!product) {
+                return next(createCustomError(`Product not found`, 404));
+            }
+
+            return {
+                ...item.toObject(),
+                productName: product.name,
+                averageRating: product.averageRating,
+                price: product.price,
+                availableInStock: product.availableInStock,
+            };
+        })
+    );
+
+    // Create a new favorite object with updated items
+    const updatedFavorite = {
+        ...favorite.toObject(),
+        items: itemsWithDetails,
+    };
+
     // The favorite is Fetched and returned in the response
-    console.log(`Fetching Favorite from userId(${userId}) Successfully`);
     return res.status(200).json({
         success: true,
         message: `Favorite successfully Fetched`,
-        data: favorite,
+        data: updatedFavorite,
     });
 });
 
