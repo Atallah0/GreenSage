@@ -207,9 +207,11 @@ const getOrder = asyncWrapper(async (req, res, next) => {
 
 });
 
+
 // updateOrderStatus Endpoint/API
 const updateOrderStatus = asyncWrapper(async (req, res, next) => {
-    const { id: orderId } = req.params
+    const { io } = require('../app');
+    const { id: orderId } = req.params;
     const { shipmentStatus } = req.body;
 
     // Check if the orderId is a valid ObjectId
@@ -220,14 +222,15 @@ const updateOrderStatus = asyncWrapper(async (req, res, next) => {
     // Update the order status
     const updatedOrder = await Order.findByIdAndUpdate({ _id: orderId }, { shipmentStatus }, {
         new: true,
-        runValidators: true
-    } // Return the updated document and enable validation
-        // { $set: { shipmentStatus } },
-    );
+        runValidators: true,
+    });
 
     if (!updatedOrder) {
         return next(createCustomError(`No order found with id: ${orderId}`, 404));
     }
+
+    // Emit a socket event to notify clients about the order status update
+    io.emit('orderStatusUpdated', { orderId });
 
     res.status(200).json({
         success: true,
