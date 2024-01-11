@@ -1,31 +1,44 @@
-const socketIO = require('socket.io');
+const WebSocket = require('ws');
 
-const setupSocket = (server, app) => {
-    const io = socketIO(server);
+const wss = new WebSocket.Server({ noServer: true });
 
-    // Map to store user sockets
-    const userSockets = new Map();
+const connections = {};
 
-    io.on('connection', (socket) => {
-        console.log('A user connected');
+wss.on('connection', (ws, req) => {
+    const userId = req.user._id.toString(); // Assuming you have user information in req.user
 
-        // Assuming you have some authentication mechanism to get the userId
-        const userId = socket.handshake.query.userId;
+    if (!connections[userId]) {
+        connections[userId] = ws;
+    }
 
-        // Store the socket for the user
-        userSockets.set(userId, socket);
+    ws.on('message', (message) => {
+        const data = JSON.parse(message);
+        const targetUserId = data.targetUserId;
 
-        socket.on('disconnect', () => {
-            console.log('User disconnected');
-            // Remove the socket when a user disconnects
-            userSockets.delete(userId);
-        });
+        if (connections[targetUserId]) {
+            connections[targetUserId].send(JSON.stringify({
+                type: 'chat',
+                message: data.message,
+                sender: userId,
+            }));
+        }
     });
 
-    // Make io accessible in other files
-    app.set('io', io);
+    ws.on('close', () => {
+        if (connections[userId] === ws) {
+            delete connections[userId];
+        }
+    });
+});
 
-    return io;
+const attach = (server) => {
+    server.on('upgrade', (request, socket, head) => {
+        wss.handleUpgrade(request, socket, head, (ws) => {
+            wss.emit('connection', ws, request);
+        });
+    });
 };
 
-module.exports = setupSocket;
+module.exports = {
+    attach,
+};

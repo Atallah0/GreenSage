@@ -334,6 +334,30 @@ const updateHealthStatus = asyncWrapper(async (req, res, next) => {
     });
 });
 
+const connections = {}; // Define connections at module-level scope
+console.log(connections);
+// Add a new method to handle sending messages
+const sendMessage = (req, res) => {
+    const { targetUserId, message } = req.body;
+    const userId = req.params.id;
+
+    if (!targetUserId || !message) {
+        return res.status(400).json({ success: false, msg: 'Invalid request' });
+    }
+
+    if (!connections[userId] || !connections[targetUserId]) {
+        return res.status(404).json({ success: false, msg: 'Users not connected for chat' });
+    }
+
+    connections[targetUserId].send(JSON.stringify({
+        type: 'chat',
+        message,
+        sender: userId,
+    }));
+
+    res.status(200).json({ success: true, msg: 'Message sent successfully' });
+};
+
 module.exports = {
     createUser,
     getUsers,
@@ -342,5 +366,6 @@ module.exports = {
     deleteUser,
     getOwners,
     getOwner,
-    updateHealthStatus
+    updateHealthStatus,
+    sendMessage, // Add this line
 };

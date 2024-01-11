@@ -1,9 +1,12 @@
 const express = require('express');
 const http = require('http');
+const WebSocket = require('ws');
 const process = require('process');
+const app = express();
 const connectDB = require('./db/dbConnection');
 const cors = require('cors');
 require('dotenv').config();
+const socketSetup = require('./socketSetup');
 
 // M
 const notFound = require('./middleware/notFound');
@@ -24,16 +27,16 @@ const shipments = require('./routes/shippingRoutes');
 const payments = require('./routes/paymnetRoutes');
 const orders = require('./routes/orderRoutes');
 
-const app = express();
 const server = http.createServer(app);
-const io = require('./socketSetup')(server, app);
+socketSetup.attach(server);
 
 // CORS Middleware
 app.use(cors());
-
+    
 // Middlewares
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
 
 // Routes Middleware
 app.use(register);
@@ -50,24 +53,42 @@ app.use('/api/shipments', shipments);
 app.use('/api/payments', payments);
 app.use('/api/orders', orders);
 
+
 // M
 app.use(notFound);
-app.use(errorHandler);
+app.use(errorHandler)
 
-const PORT = parseInt(process.env.PORT) || 5000;
-
+const PORT = parseInt(process.env.PORT) || 5000
 const start = async () => {
     try {
-        await connectDB(process.env.MONGO_URI);
-        server.listen(PORT, () => {
+        await connectDB(process.env.MONGO_URI)
+        app.listen(PORT, () => {
             console.log(`Server is listening on port ${PORT}...`);
-        });
+        })
     } catch (error) {
         console.log(error);
     }
-};
-
+}
 start();
 
-// Make io accessible in other files
-module.exports = { io, app };
+
+
+
+
+
+
+// const start = async () => {
+//     try {
+//       const MONGO_URL = process.env.NODE_ENV === 'development'
+//         ? process.env.DEV_MONGO_URL
+//         : process.env.PROD_MONGO_URL;
+  
+//       await connectDB(MONGO_URL);
+//       app.listen(PORT, () => {
+//         console.log(`Server is listening on port ${PORT}...`);
+//       });
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   };
+// start();
