@@ -11,8 +11,7 @@ const {
     getUser,
     updateUser,
     deleteUser,
-    updateHealthStatus,
-    sendMessage
+    updateHealthStatus
 } = require('../controllers/userController')
 
 router.post('/', createUser);
@@ -21,6 +20,5 @@ router.get('/:id', /*passport.authenticate('jwt', { session: false }), isCustome
 router.put('/:id', updateUser);
 router.delete('/:id', deleteUser);
 router.patch('/:id/healthStatus', updateHealthStatus);
-router.post('/:id/sendMessage', sendMessage);
 
 module.exports = router;

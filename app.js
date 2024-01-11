@@ -1,12 +1,9 @@
 const express = require('express');
-const http = require('http');
-const WebSocket = require('ws');
 const process = require('process');
 const app = express();
 const connectDB = require('./db/dbConnection');
 const cors = require('cors');
 require('dotenv').config();
-const socketSetup = require('./socketSetup');
 
 // M
 const notFound = require('./middleware/notFound');
@@ -27,8 +24,6 @@ const shipments = require('./routes/shippingRoutes');
 const payments = require('./routes/paymnetRoutes');
 const orders = require('./routes/orderRoutes');
 
-const server = http.createServer(app);
-socketSetup.attach(server);
 
 // CORS Middleware
 app.use(cors());
