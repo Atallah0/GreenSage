@@ -1,9 +1,17 @@
 const express = require('express');
-const process = require('process');
-const app = express();
+const http = require('http');
+const socketIO = require('socket.io');
 const connectDB = require('./db/dbConnection');
-const cors = require('cors');
+const Chat = require('./models/chatModel');
+const User = require('./models/userModel');
+const process = require('process');
 require('dotenv').config();
+const cors = require('cors');
+
+
+const app = express();
+const server = http.createServer(app);
+const io = socketIO(server);
 
 // M
 const notFound = require('./middleware/notFound');
@@ -27,11 +35,14 @@ const orders = require('./routes/orderRoutes');
 
 // CORS Middleware
 app.use(cors());
-    
+
 // Middlewares
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
+});
 
 // Routes Middleware
 app.use(register);
@@ -57,7 +68,7 @@ const PORT = parseInt(process.env.PORT) || 5000
 const start = async () => {
     try {
         await connectDB(process.env.MONGO_URI)
-        app.listen(PORT, () => {
+        server.listen(PORT, () => {
             console.log(`Server is listening on port ${PORT}...`);
         })
     } catch (error) {
@@ -67,23 +78,83 @@ const start = async () => {
 start();
 
 
+app.use(express.static('public'));
 
 
+const connectedUsers = new Map();
 
+io.on('connection', (socket) => {
+    socket.on('join', async (userData) => {
+        try {
+            const { firstName, email } = userData;
+            const user = await User.findOne({ email });
 
+            if (!user) {
+                // If user is not found, throw an error
+                throw new Error(`User with firstName: ${firstName} and email: ${email} not found`);
+            }
 
-// const start = async () => {
-//     try {
-//       const MONGO_URL = process.env.NODE_ENV === 'development'
-//         ? process.env.DEV_MONGO_URL
-//         : process.env.PROD_MONGO_URL;
-  
-//       await connectDB(MONGO_URL);
-//       app.listen(PORT, () => {
-//         console.log(`Server is listening on port ${PORT}...`);
-//       });
-//     } catch (error) {
-//       console.log(error);
-//     }
-//   };
-// start();
+            // User exists, use the existing user
+            socket.user = user;
+            connectedUsers.set(socket.id, socket.user);
+
+            console.log(`${socket.user.firstName} joined the chat`);
+        } catch (error) {
+            console.error('Error joining the chat:', error);
+        }
+    });
+
+    socket.on('chat message', async (msg) => {
+        try {
+            const newMessage = new Chat({
+                user: socket.user._id,
+                message: msg,
+            });
+            await newMessage.save();
+
+            io.emit('chat message', {
+                user: socket.user.firstName,
+                message: msg,
+            });
+
+            console.log(`${socket.user.firstName} sent a message: ${msg}`);
+        } catch (error) {
+            console.error('Error saving and emitting message:', error);
+        }
+    });
+
+    socket.on('private message', async (data) => {
+        try {
+            const { to, message } = data;
+            const toUser = await User.findOne({ email: to });
+
+            if (toUser) {
+                const newMessage = new Chat({
+                    user: socket.user._id,
+                    message: message,
+                });
+                await newMessage.save();
+
+                const recipientSocket = Array.from(connectedUsers.values())
+                    .find(user => user.email === toUser.email);
+
+                if (recipientSocket) {
+                    io.to(recipientSocket.id).emit('private message', {
+                        from: socket.user.firstName,
+                        message: message,
+                    });
+                }
+
+                console.log(`${socket.user.firstName} sent a private message to ${to}: ${message}`);
+            } else {
+                console.error(`User with email ${to} not found`);
+            }
+        } catch (error) {
+            console.error('Error sending private message:', error);
+        }
+    });
+
+    socket.on('disconnect', () => {
+        console.log('User disconnected');
+    });
+});

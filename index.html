@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Live Chat</title>
+</head>
+
+<body>
+    <div id="registration">
+        <h2>Register</h2>
+        <form id="registrationForm">
+            <label for="firstName">First Name:</label>
+            <input type="text" id="firstName" required />
+            <label for="email">Email:</label>
+            <input type="email" id="email" required />
+            <button type="submit">Join Chat</button>
+        </form>
+    </div>
+
+    <div id="chat" style="display: none;">
+        <h2>Chat Room</h2>
+        <ul id="messages"></ul>
+        <form id="form" action="">
+            <input id="m" autocomplete="off" /><button>Send</button>
+        </form>
+        <form id="privateMessageForm">
+            <label for="toUser">To:</label>
+            <input type="email" id="toUser" required />
+            <label for="privateMessage">Message:</label>
+            <input type="text" id="privateMessage" />
+            <button type="submit">Send Private Message</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.socket.io/4.1.2/socket.io.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(function () {
+            var socket = io();
+
+            $('#registrationForm').submit(function (e) {
+                e.preventDefault();
+                var firstName = $('#firstName').val();
+                var email = $('#email').val();
+                socket.emit('join', { firstName: firstName, email: email });
+                $('#registration').hide();
+                $('#chat').show();
+                return false;
+            });
+
+            $('form#form').submit(function (e) {
+                e.preventDefault();
+                socket.emit('chat message', $('#m').val());
+                $('#m').val('');
+                return false;
+            });
+
+            $('#privateMessageForm').submit(function (e) {
+                e.preventDefault();
+                var to = $('#toUser').val();
+                var message = $('#privateMessage').val();
+                socket.emit('private message', { to: to, message: message });
+                $('#toUser').val('');
+                $('#privateMessage').val('');
+                return false;
+            });
+
+            socket.on('chat message', function (data) {
+                $('#messages').append($('<li>').text(`${data.user}: ${data.message}`));
+            });
+
+            socket.on('private message', function (data) {
+                $('#messages').append($('<li>').text(`Private from ${data.from}: ${data.message}`));
+            });
+        });
+    </script>
+</body>
+
+</html>
