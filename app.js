@@ -108,6 +108,7 @@ io.on('connection', (socket) => {
         try {
             const newMessage = new Chat({
                 user: socket.user._id,
+                sender: socket.user.firstName,
                 message: msg,
             });
             await newMessage.save();
@@ -131,6 +132,8 @@ io.on('connection', (socket) => {
             if (toUser) {
                 const newMessage = new Chat({
                     user: socket.user._id,
+                    sender: socket.user.firstName,
+                    reciver: to,
                     message: message,
                 });
                 await newMessage.save();
