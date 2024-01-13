@@ -132,20 +132,39 @@ io.on('connection', (socket) => {
             if (toUser) {
                 const newMessage = new Chat({
                     user: socket.user._id,
-                    sender: socket.user.firstName,
-                    reciver: to,
+                    to: to,
+                    from: socket.user.firstName,
                     message: message,
                 });
                 await newMessage.save();
 
-                const recipientSocket = Array.from(connectedUsers.values())
-                    .find(user => user.email === toUser.email);
+
+                const senderSocket = Array.from(connectedUsers.entries())
+                    .find(([_, user]) => user.email === socket.user.email);
+
+                const recipientSocket = Array.from(connectedUsers.entries())
+                    .find(([_, user]) => user.email === toUser.email);
+
+                console.log(senderSocket);
+                console.log(recipientSocket);
+
 
                 if (recipientSocket) {
-                    io.to(recipientSocket.id).emit('private message', {
+                    // Emit private message to the sender
+                    io.to(senderSocket[0]).emit('private message', {
+                        to: to,
                         from: socket.user.firstName,
                         message: message,
                     });
+
+                    // Emit private message to the receiver
+                    io.to(recipientSocket[0]).emit('private message', {
+                        to: to,
+                        from: socket.user.firstName,
+                        message: message,
+                    });
+                } else {
+                    console.error(`Socket not found for user with email ${to}`);
                 }
 
                 console.log(`${socket.user.firstName} sent a private message to ${to}: ${message}`);
