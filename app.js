@@ -90,13 +90,14 @@ io.on('connection', (socket) => {
             const user = await User.findOne({ email });
 
             if (!user) {
-                // If user is not found, throw an error
                 throw new Error(`User with firstName: ${firstName} and email: ${email} not found`);
             }
 
-            // User exists, use the existing user
             socket.user = user;
             connectedUsers.set(socket.id, socket.user);
+
+            // Join a room with the user's email as the room name
+            socket.join(user.email);
 
             console.log(`${socket.user.firstName} joined the chat`);
         } catch (error) {
@@ -138,34 +139,19 @@ io.on('connection', (socket) => {
                 });
                 await newMessage.save();
 
+                // Emit private message to the sender
+                io.to(socket.id).emit('private message', {
+                    to: to,
+                    from: socket.user.firstName,
+                    message: message,
+                });
 
-                const senderSocket = Array.from(connectedUsers.entries())
-                    .find(([_, user]) => user.email === socket.user.email);
-
-                const recipientSocket = Array.from(connectedUsers.entries())
-                    .find(([_, user]) => user.email === toUser.email);
-
-                console.log(senderSocket);
-                console.log(recipientSocket);
-
-
-                if (recipientSocket) {
-                    // Emit private message to the sender
-                    io.to(senderSocket[0]).emit('private message', {
-                        to: to,
-                        from: socket.user.firstName,
-                        message: message,
-                    });
-
-                    // Emit private message to the receiver
-                    io.to(recipientSocket[0]).emit('private message', {
-                        to: to,
-                        from: socket.user.firstName,
-                        message: message,
-                    });
-                } else {
-                    console.error(`Socket not found for user with email ${to}`);
-                }
+                // Emit private message to the recipient's room
+                io.to(toUser.email).emit('private message', {
+                    to: to,
+                    from: socket.user.firstName,
+                    message: message,
+                });
 
                 console.log(`${socket.user.firstName} sent a private message to ${to}: ${message}`);
             } else {
@@ -176,7 +162,13 @@ io.on('connection', (socket) => {
         }
     });
 
+
     socket.on('disconnect', () => {
-        console.log('User disconnected');
+        try {
+            connectedUsers.delete(socket.id);
+            console.log(`${socket.user.firstName} disconnected`);
+        } catch (error) {
+            console.error('Error handling disconnect:', error);
+        }
     });
 });
