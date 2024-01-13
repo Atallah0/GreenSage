@@ -84,31 +84,24 @@ app.use(express.static('public'));
 const connectedUsers = new Map();
 
 io.on('connection', (socket) => {
-    // app.js (within the io.on('connection', (socket) => { ... }) block)
     socket.on('join', async (userData) => {
         try {
-            const { token, firstName, email } = userData;
-
-            // Verify the token
-            const decoded = await jwt.verify(token, process.env.JWT_SECRET);
-            if (!decoded) {
-                throw new Error('Invalid token');
-            }
-
+            const { firstName, email } = userData;
             const user = await User.findOne({ email });
+
             if (!user) {
-                throw new Error(`User with email ${email} not found`);
+                throw new Error(`User with firstName: ${firstName} and email: ${email} not found`);
             }
 
-            // User is authenticated, allow joining
             socket.user = user;
             connectedUsers.set(socket.id, socket.user);
+
+            // Join a room with the user's email as the room name
             socket.join(user.email);
 
             console.log(`${socket.user.firstName} joined the chat`);
         } catch (error) {
             console.error('Error joining the chat:', error);
-            socket.emit('error', 'Unauthorized to join chat');
         }
     });
 
