@@ -9,17 +9,19 @@
 </head>
 
 <body>
-    <div id="registration">
-        <h2>Register</h2>
-        <form id="registrationForm">
-            <label for="firstName">First Name:</label>
-            <input type="text" id="firstName" required />
+    <!-- Login form -->
+    <div id="login">
+        <h2>Login</h2>
+        <form id="loginForm">
             <label for="email">Email:</label>
-            <input type="email" id="email" required />
-            <button type="submit">Join Chat</button>
+            <input type="email" id="loginEmail" required />
+            <label for="password">Password:</label>
+            <input type="password" id="loginPassword" required />
+            <button type="submit">Login to Chat</button>
         </form>
     </div>
 
+    <!-- Chat room -->
     <div id="chat" style="display: none;">
         <h2>Chat Room</h2>
         <ul id="messages"></ul>
@@ -41,16 +43,35 @@
         $(function () {
             var socket = io();
 
-            $('#registrationForm').submit(function (e) {
+            // Event listener for the login form
+            $('#loginForm').submit(function (e) {
                 e.preventDefault();
-                var firstName = $('#firstName').val();
-                var email = $('#email').val();
-                socket.emit('join', { firstName: firstName, email: email });
-                $('#registration').hide();
-                $('#chat').show();
+                var email = $('#loginEmail').val();
+                var password = $('#loginPassword').val();
+
+                // Use the login API to authenticate the user
+                $.ajax({
+                    type: 'POST',
+                    url: '/api/login',
+                    data: { email: email, password: password },
+                    success: function (data) {
+                        // On successful login, emit the 'join' event with user data
+                        var firstName = data.message.split(' ')[2];
+                        socket.emit('join', data.data);
+
+                        // Hide the login form and show the chat
+                        $('#login').hide();
+                        $('#chat').show();
+                    },
+                    error: function (error) {
+                        console.error('Login failed:', error.responseJSON.message);
+                    }
+                });
+
                 return false;
             });
 
+            // Event listener for the chat message form
             $('form#form').submit(function (e) {
                 e.preventDefault();
                 socket.emit('chat message', $('#m').val());
@@ -58,6 +79,7 @@
                 return false;
             });
 
+            // Event listener for the private message form
             $('#privateMessageForm').submit(function (e) {
                 e.preventDefault();
                 var to = $('#toUser').val();
@@ -68,6 +90,7 @@
                 return false;
             });
 
+            // Socket event handlers
             socket.on('chat message', function (data) {
                 $('#messages').append($('<li>').text(`${data.user}: ${data.message}`));
             });

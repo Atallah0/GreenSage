@@ -1,21 +1,29 @@
 // socket.js
 const socketIO = require('socket.io');
-const connectDB = require('./db/dbConnection');
 const Chat = require('./models/chatModel');
 const User = require('./models/userModel');
+const process = require('process');
+require('dotenv').config();
+const jwt = require('jsonwebtoken');
 
 const configureSocket = (server) => {
     const io = socketIO(server);
     const connectedUsers = new Map();
 
     io.on('connection', (socket) => {
-        socket.on('join', async (userData) => {
+        // Update the 'join' event to use the JWT token
+        socket.on('join', async (token) => {
             try {
-                const { firstName, email } = userData;
-                const user = await User.findOne({ email });
+                const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+
+                // Extract user information from the decoded token
+                const { id, email, userType } = decodedToken;
+
+                const user = await User.findById(id);
+                // console.log(user);
 
                 if (!user) {
-                    throw new Error(`User with firstName: ${firstName} and email: ${email} not found`);
+                    throw new Error(`User with id: ${id} not found`);
                 }
 
                 socket.user = user;
