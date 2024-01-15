@@ -42,6 +42,7 @@
     <script>
         $(function () {
             var socket = io();
+            var loggedIn = false; // Flag to track user login status
 
             // Event listener for the login form
             $('#loginForm').submit(function (e) {
@@ -62,6 +63,16 @@
                         // Hide the login form and show the chat
                         $('#login').hide();
                         $('#chat').show();
+                        loggedIn = true; // Set the flag to true upon successful login
+
+                        // Add the 'productCreated' event listener after login
+                        socket.on('productCreated', function (data) {
+                            // Display a notification to the user only if logged in
+                            if (loggedIn) {
+                                alert('New product created!');
+                                console.log('New product details:', data.product);
+                            }
+                        });
                     },
                     error: function (error) {
                         console.error('Login failed:', error.responseJSON.message);
@@ -97,6 +108,13 @@
 
             socket.on('private message', function (data) {
                 $('#messages').append($('<li>').text(`Private from ${data.from}: ${data.message}`));
+            });
+
+            // Event listener for productCreated notification
+            socket.on('productCreated', function (data) {
+                // Display a notification to the user
+                alert('New product created!');
+                console.log('New product details:', data.product);
             });
         });
     </script>

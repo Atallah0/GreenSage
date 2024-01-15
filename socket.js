@@ -6,11 +6,20 @@ const process = require('process');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 
+let io;
+
 const configureSocket = (server) => {
-    const io = socketIO(server);
+    io = socketIO(server);
     const connectedUsers = new Map();
 
     io.on('connection', (socket) => {
+        console.log(`User connected`);
+
+        // Log all events received
+        socket.onAny((event, ...args) => {
+            console.log(`Received event: ${event}`, args);
+        });
+
         // Update the 'join' event to use the JWT token
         socket.on('join', async (token) => {
             try {
@@ -95,11 +104,14 @@ const configureSocket = (server) => {
             }
         });
 
-
         socket.on('disconnect', () => {
             try {
+                if (socket.user) {
+                    console.log(`${socket.user.firstName} disconnected`);
+                } else {
+                    console.log(`User disconnected`);
+                }
                 connectedUsers.delete(socket.id);
-                console.log(`${socket.user.firstName} disconnected`);
             } catch (error) {
                 console.error('Error handling disconnect:', error);
             }
@@ -107,4 +119,11 @@ const configureSocket = (server) => {
     });
 };
 
-module.exports = configureSocket;
+const getIo = () => {
+    if (!io) {
+        throw new Error('Socket.io not initialized');
+    }
+    return io;
+};
+
+module.exports = { configureSocket, getIo };

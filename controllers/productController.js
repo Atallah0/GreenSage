@@ -8,6 +8,8 @@ const mongoose = require('mongoose');
 const { getCategoryNameById } = require('../services/categoryServices');
 const { fetchRelatedProducts, applyFilterLogic } = require('../services/productService');
 const { PAGE_SIZE } = require('../constants');
+const { getIo } = require('../socket');
+
 
 
 // createProduct Endpoint/API
@@ -57,6 +59,15 @@ const createProduct = asyncWrapper(async (req, res, next) => {
         popular,
         topSelling
     });
+
+    const io = getIo(); // Get the io instance
+
+    // Emit a notification to all connected users
+    io.emit('productCreated', {
+        message: 'A new product has been created!',
+        product: product,
+    });
+
 
     // Update the associated category with the new product reference
     await category.updateOne(

@@ -8,7 +8,7 @@ const asyncWrapper = require('../middleware/asyncWrapper');
 const { createCustomError } = require('../utils/customError');
 const { DELIVERY_FEES } = require('../constants');
 const mongoose = require('mongoose');
-const { request } = require('express');
+const { getIo } = require('../socket');
 
 
 //ToDO if cart is empty
@@ -209,7 +209,7 @@ const getOrder = asyncWrapper(async (req, res, next) => {
 
 // updateOrderStatus Endpoint/API
 const updateOrderStatus = asyncWrapper(async (req, res, next) => {
-    const { id: orderId } = req.params
+    const { id: orderId } = req.params;
     const { shipmentStatus } = req.body;
 
     // Check if the orderId is a valid ObjectId
@@ -218,16 +218,29 @@ const updateOrderStatus = asyncWrapper(async (req, res, next) => {
     }
 
     // Update the order status
-    const updatedOrder = await Order.findByIdAndUpdate({ _id: orderId }, { shipmentStatus }, {
-        new: true,
-        runValidators: true
-    } // Return the updated document and enable validation
-        // { $set: { shipmentStatus } },
+    const updatedOrder = await Order.findByIdAndUpdate(
+        { _id: orderId },
+        { shipmentStatus },
+        { new: true, runValidators: true }
     );
 
     if (!updatedOrder) {
         return next(createCustomError(`No order found with id: ${orderId}`, 404));
     }
+
+    // // Emit a notification to the user using socket.io
+    // const userId = updatedOrder.userId;
+
+    // const io = getIo(); // Get the io instance
+
+    // // Emit a notification to the user with the updated order status
+    // io.to(userId).emit('orderStatusUpdated', {
+    //     orderId: updatedOrder._id,
+    //     shipmentStatus: updatedOrder.shipmentStatus,
+    // });
+
+    // Display a notification on the server-side console
+    // console.log(`Order ${updatedOrder._id} status updated: ${updatedOrder.shipmentStatus}`);
 
     res.status(200).json({
         success: true,
@@ -235,6 +248,7 @@ const updateOrderStatus = asyncWrapper(async (req, res, next) => {
         data: updatedOrder,
     });
 });
+
 
 // getOwnerOrders Endpoint/API
 const getOwnerOrders = asyncWrapper(async (req, res, next) => {
