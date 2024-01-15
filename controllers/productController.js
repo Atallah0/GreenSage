@@ -1,7 +1,7 @@
 const Product = require('../models/productModel');
 const Category = require('../models/categoryModel');
 const User = require('../models/userModel');
-const Rating = require('../models/ratingModel');
+// const Rating = require('../models/ratingModel');
 const asyncWrapper = require('../middleware/asyncWrapper');
 const { createCustomError } = require('../utils/customError');
 const mongoose = require('mongoose');
@@ -36,11 +36,11 @@ const createProduct = asyncWrapper(async (req, res, next) => {
     // Fetch user details
     const createdBy = req.user.id;
     const user = await User.findOne({ _id: createdBy });
-    console.log(user);
+    // console.log(user);
     // Access user's firstName
     const firstName = user.firstName;
     const lastName = user.lastName;
-    console.log(firstName + lastName);
+    // console.log(firstName + lastName);
 
     const owner = `${firstName} ${lastName}`;
 
@@ -67,6 +67,8 @@ const createProduct = asyncWrapper(async (req, res, next) => {
 
     // Add the product notification to the global list
     productNotifications.push(productNotification);
+
+    // console.log(productNotifications);
 
     // Update the associated category with the new product reference
     await category.updateOne(
