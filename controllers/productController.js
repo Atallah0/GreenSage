@@ -59,15 +59,25 @@ const createProduct = asyncWrapper(async (req, res, next) => {
         topSelling
     });
 
-    // Emit a notification to all connected users
+    // Fetch all users from the User model
+    const allUsers = await User.find({});
+
+    // Emit a notification to all users
     const productNotification = {
         message: 'A new product has been created!',
         product: product,
     };
 
-    // Add the product notification to the global list
-    productNotifications.push(productNotification);
+    for (const user of allUsers) {
+        // Convert user._id to a string for comparison
+        const userStringId = user._id.toString();
 
+        // Add the product notification to each user's list
+        if (!productNotifications.has(userStringId)) {
+            productNotifications.set(userStringId, []);
+        }
+        productNotifications.get(userStringId).push(productNotification);
+    }
     // console.log(productNotifications);
 
     // Update the associated category with the new product reference

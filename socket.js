@@ -7,7 +7,7 @@ require('dotenv').config();
 const jwt = require('jsonwebtoken');
 
 let io;
-let productNotifications = [];
+let productNotifications = new Map();
 
 const configureSocket = (server) => {
     io = socketIO(server);
@@ -43,9 +43,23 @@ const configureSocket = (server) => {
 
                 console.log(`${socket.user.firstName} joined the chat`);
 
+                // Convert user._id to a string for comparison
+                const userIdString = user._id.toString();
+
+                // console.log('productNotifications:', productNotifications);
+                // console.log('userIdString:', userIdString);
+
                 // Send stored product notifications to the user upon login
-                for (const notification of productNotifications) {
-                    socket.emit('productCreated', notification);
+                const userNotifications = productNotifications.get(userIdString);
+                // console.log('userNotifications:', userNotifications);
+
+                if (userNotifications) {
+                    for (const notification of userNotifications) {
+                        socket.emit('productCreated', notification);
+                        console.log('Notification sent:', notification);
+                    }
+                    // Clear notifications after sending
+                    productNotifications.delete(userIdString);
                 }
             } catch (error) {
                 console.error('Error joining the chat:', error);
