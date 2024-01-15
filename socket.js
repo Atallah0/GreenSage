@@ -7,6 +7,7 @@ require('dotenv').config();
 const jwt = require('jsonwebtoken');
 
 let io;
+let productNotifications = [];
 
 const configureSocket = (server) => {
     io = socketIO(server);
@@ -29,7 +30,6 @@ const configureSocket = (server) => {
                 const { id, email, userType } = decodedToken;
 
                 const user = await User.findById(id);
-                // console.log(user);
 
                 if (!user) {
                     throw new Error(`User with id: ${id} not found`);
@@ -42,6 +42,11 @@ const configureSocket = (server) => {
                 socket.join(user.email);
 
                 console.log(`${socket.user.firstName} joined the chat`);
+
+                // Send stored product notifications to the user upon login
+                for (const notification of productNotifications) {
+                    socket.emit('productCreated', notification);
+                }
             } catch (error) {
                 console.error('Error joining the chat:', error);
             }
@@ -126,4 +131,4 @@ const getIo = () => {
     return io;
 };
 
-module.exports = { configureSocket, getIo };
+module.exports = { configureSocket, getIo, productNotifications };
