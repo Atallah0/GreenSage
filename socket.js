@@ -8,10 +8,11 @@ const jwt = require('jsonwebtoken');
 
 let io;
 let productNotifications = new Map();
+let connectedUsers = new Map();
+
 
 const configureSocket = (server) => {
     io = socketIO(server);
-    const connectedUsers = new Map();
 
     io.on('connection', (socket) => {
         console.log(`User connected`);
@@ -145,4 +146,10 @@ const getIo = () => {
     return io;
 };
 
-module.exports = { configureSocket, getIo, productNotifications };
+const emitProductNotificationToConnectedUsers = (notification) => {
+    for (const [socketId, user] of connectedUsers) {
+        io.to(socketId).emit('productCreated', notification);
+    }
+};
+
+module.exports = { configureSocket, getIo, emitProductNotificationToConnectedUsers, productNotifications, connectedUsers };

@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 const { getCategoryNameById } = require('../services/categoryServices');
 const { fetchRelatedProducts, applyFilterLogic } = require('../services/productService');
 const { PAGE_SIZE } = require('../constants');
-const { productNotifications } = require('../socket');
+const { productNotifications, connectedUsers, emitProductNotificationToConnectedUsers } = require('../socket');
 
 
 // createProduct Endpoint/API
@@ -59,25 +59,28 @@ const createProduct = asyncWrapper(async (req, res, next) => {
         topSelling
     });
 
-    // Fetch all users from the User model
-    const allUsers = await User.find({});
-
-    // Emit a notification to all users
+    // Emit product notification to both connected and not logged in users
     const productNotification = {
         message: 'A new product has been created!',
         product: product,
     };
 
-    for (const user of allUsers) {
-        // Convert user._id to a string for comparison
-        const userStringId = user._id.toString();
+    emitProductNotificationToConnectedUsers(productNotification);
 
-        // Add the product notification to each user's list
-        if (!productNotifications.has(userStringId)) {
-            productNotifications.set(userStringId, []);
+    // Store product notification for users who are not currently connected
+    const allUsers = await User.find({});
+    for (const user of allUsers) {
+        const userIdString = user._id.toString();
+        if (!connectedUsers.has(userIdString)) {
+            console.log(`Notification stored for not connected user with ID: ${userIdString}`);
+            if (!productNotifications.has(userIdString)) {
+                productNotifications.set(userIdString, []);
+            }
+            productNotifications.get(userIdString).push(productNotification);
         }
-        productNotifications.get(userStringId).push(productNotification);
     }
+    console.log('Connected Users:', connectedUsers);
+
     // console.log(productNotifications);
 
     // Update the associated category with the new product reference
