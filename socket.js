@@ -2,6 +2,7 @@
 const socketIO = require('socket.io');
 const Chat = require('./models/chatModel');
 const User = require('./models/userModel');
+const Notification = require('./models/notificationsModel');
 const process = require('process');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
@@ -52,12 +53,22 @@ const configureSocket = (server) => {
 
                 // Send stored product notifications to the user upon login
                 const userNotifications = productNotifications.get(userIdString);
-                // console.log('userNotifications:', userNotifications);
+                                // console.log('userNotifications:', userNotifications);
 
+
+                // Save notifications in the database
                 if (userNotifications) {
                     for (const notification of userNotifications) {
                         socket.emit('productCreated', notification);
-                        console.log('Notification sent:', notification);
+
+                        // Save notification to the Notification model
+                        const newNotification = new Notification({
+                            userId: user._id,
+                            product: notification.product._id, // You need to define the product structure in your model
+                        });
+                        await newNotification.save();
+
+                        console.log('Notifi`cation sent and saved to the database:', notification);
                     }
                     // Clear notifications after sending
                     productNotifications.delete(userIdString);
