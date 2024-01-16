@@ -1,6 +1,7 @@
 const Product = require('../models/productModel');
 const Category = require('../models/categoryModel');
 const User = require('../models/userModel');
+const Notification = require('../models/notificationModel');
 // const Rating = require('../models/ratingModel');
 const asyncWrapper = require('../middleware/asyncWrapper');
 const { createCustomError } = require('../utils/customError');
@@ -837,6 +838,42 @@ const searchAndFilter = asyncWrapper(async (req, res, next) => {
     });
 });
 
+// getUserNotifications Endpoint/API
+const getUserNotifications = asyncWrapper(async (req, res, next) => {
+    const { id: userId } = req.params;
+
+    // Check if the userId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return next(createCustomError(`Invalid userId ID: ${userId}`, 400));
+    }
+
+    // Fetch the Notifications for the user
+    const notifications = await Notification.find({ userId });
+
+    // Check if the notifications exist
+    if (notifications.length === 0) {
+        return next(createCustomError(`No notifications found`, 404));
+    }
+
+    // Fetch product details for each notification
+    const productDetailsPromises = notifications.map(async (notification) => {
+        const productDetails = await Product.findById(notification.product);
+        return {
+            notificationId: notification._id,
+            productDetails
+        };
+    });
+
+    // Wait for all product details promises to resolve
+    const productDetailsResults = await Promise.all(productDetailsPromises);
+
+    res.status(200).json({
+        msg: 'Notifications with Product details fetched successfully',
+        success: true,
+        data: productDetailsResults
+    });
+});
+
 
 module.exports = {
     createProduct,
@@ -847,5 +884,6 @@ module.exports = {
     getUserRelatedProducts,
     search,
     filter,
-    searchAndFilter
+    searchAndFilter,
+    getUserNotifications
 }
