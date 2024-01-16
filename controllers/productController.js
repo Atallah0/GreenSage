@@ -71,7 +71,21 @@ const createProduct = asyncWrapper(async (req, res, next) => {
     const allUsers = await User.find({});
     for (const user of allUsers) {
         const userIdString = user._id.toString();
-        if (!connectedUsers.has(userIdString)) {
+
+        let userIsConnected = false;
+
+        // Iterate over the values in the connectedUsers Map
+        for (const connectedUser of connectedUsers.values()) {
+            // Check if the user ID matches
+            if (connectedUser._id.toString() === userIdString) {
+                console.log(`User with ID ${userIdString} is currently connected, skipping notification storage`);
+                userIsConnected = true;
+                break; // Exit the inner loop since we found the user
+            }
+        }
+
+        // If the user is not connected, store the notification
+        if (!userIsConnected) {
             console.log(`Notification stored for not connected user with ID: ${userIdString}`);
             if (!productNotifications.has(userIdString)) {
                 productNotifications.set(userIdString, []);
@@ -79,7 +93,8 @@ const createProduct = asyncWrapper(async (req, res, next) => {
             productNotifications.get(userIdString).push(productNotification);
         }
     }
-    console.log('Connected Users:', connectedUsers);
+
+    console.log('Connected Users:', connectedUsers);;
 
     // console.log(productNotifications);
 
