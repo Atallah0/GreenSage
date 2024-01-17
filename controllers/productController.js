@@ -81,6 +81,13 @@ const createProduct = asyncWrapper(async (req, res, next) => {
             if (connectedUser._id.toString() === userIdString) {
                 console.log(`User with ID ${userIdString} is currently connected, skipping notification storage`);
                 userIsConnected = true;
+
+                const newNotification = new Notification({
+                    userId: connectedUser._id,
+                    product: productNotification.product._id, // You need to define the product structure in your model
+                });
+                await newNotification.save();
+
                 break; // Exit the inner loop since we found the user
             }
         }
@@ -95,7 +102,7 @@ const createProduct = asyncWrapper(async (req, res, next) => {
         }
     }
 
-    console.log('Connected Users:', connectedUsers);;
+    console.log('Connected Users:', connectedUsers);
 
     // console.log(productNotifications);
 
