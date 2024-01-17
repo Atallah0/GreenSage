@@ -10,7 +10,7 @@ const jwt = require('jsonwebtoken');
 let io;
 let productNotifications = new Map();
 let connectedUsers = new Map();
-
+let userMessageHistory = new Map();
 
 const configureSocket = (server) => {
     io = socketIO(server);
@@ -47,6 +47,19 @@ const configureSocket = (server) => {
 
                 // Convert user._id to a string for comparison
                 const userIdString = user._id.toString();
+
+                // Send stored product notifications to the user upon login
+                const userMessages = userMessageHistory.get(userIdString) || [];
+                for (const message of userMessages) {
+                    socket.emit('chat message', {
+                        user: message.user,
+                        to: message.to,
+                        message: message.message,
+                    });
+                }
+
+                // console.log("User Messages: " + userMessages);
+
 
                 // console.log('productNotifications:', productNotifications);
                 // console.log('userIdString:', userIdString);
@@ -125,6 +138,21 @@ const configureSocket = (server) => {
                         from: socket.user.firstName,
                         message: message,
                     });
+
+                    const userIdString = socket.user._id.toString()
+
+                    // console.log("User Messages: " + userMessages);
+
+                    // Save message to the user's message history
+                    const userMessages = userMessageHistory.get(userIdString) || [];
+                    userMessages.push({
+                        user: socket.user.firstName,
+                        to: to,
+                        message: message,
+                    });
+                    userMessageHistory.set(userIdString, userMessages);
+
+                    // console.log(userMessages);
 
                     console.log(`${socket.user.firstName} sent a private message to ${to}: ${message}`);
                 } else {
