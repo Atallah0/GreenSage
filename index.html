@@ -109,6 +109,16 @@
             socket.on('private message', function (data) {
                 $('#messages').append($('<li>').text(`Private from ${data.from}: ${data.message}`));
             });
+
+            // Add the 'orderStatusUpdated' event listener
+            socket.on('orderStatusUpdated', function (data) {
+                if (loggedIn) {
+                    alert('Order Status Updated');
+                    console.log('Order Status Updated', {
+                        status: data.shippmentStatus
+                    })
+                }
+            });
         });
     </script>
 </body>

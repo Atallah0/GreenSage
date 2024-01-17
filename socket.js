@@ -9,6 +9,7 @@ const jwt = require('jsonwebtoken');
 
 let io;
 let productNotifications = new Map();
+let OrdersStatus = new Map();
 let connectedUsers = new Map();
 let userMessageHistory = new Map();
 
@@ -86,6 +87,16 @@ const configureSocket = (server) => {
                     // Clear notifications after sending
                     productNotifications.delete(userIdString);
                 }
+
+                const OrderNotifications = OrdersStatus.get(userIdString);
+                if (OrderNotifications) {
+                    for (const OrderNotification of OrderNotifications) {
+                        socket.emit('orderStatusUpdated', OrderNotification);
+                    }
+                    // Clear notifications after sending
+                    OrdersStatus.delete(userIdString);
+                }
+
             } catch (error) {
                 console.error('Error joining the chat:', error);
             }
@@ -191,4 +202,20 @@ const emitProductNotificationToConnectedUsers = (notification) => {
     }
 };
 
-module.exports = { configureSocket, getIo, emitProductNotificationToConnectedUsers, productNotifications, connectedUsers };
+const emitOrderNotificationToConnectedUsers = (notification, userId) => {
+    for (const [socketId, user] of connectedUsers) {
+        if (user._id.toString() === userId) {
+            io.to(socketId).emit('orderStatusUpdated', notification);
+        }
+    }
+};
+
+module.exports = {
+    configureSocket,
+    getIo,
+    emitProductNotificationToConnectedUsers,
+    emitOrderNotificationToConnectedUsers,
+    productNotifications,
+    OrdersStatus,
+    connectedUsers,
+};

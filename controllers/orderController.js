@@ -8,7 +8,7 @@ const asyncWrapper = require('../middleware/asyncWrapper');
 const { createCustomError } = require('../utils/customError');
 const { DELIVERY_FEES } = require('../constants');
 const mongoose = require('mongoose');
-const { getIo } = require('../socket');
+const { getIo, connectedUsers, emitOrderNotificationToConnectedUsers, OrdersStatus } = require('../socket');
 
 
 //ToDO if cart is empty
@@ -229,18 +229,36 @@ const updateOrderStatus = asyncWrapper(async (req, res, next) => {
     }
 
     // // Emit a notification to the user using socket.io
-    // const userId = updatedOrder.userId;
+    const userId = updatedOrder.userId.toString();
 
-    // const io = getIo(); // Get the io instance
+    // Emit a notification to the user with the updated order status
+    const orderStatusUpdated = {
+        orderId: updatedOrder._id,
+        shipmentStatus: updatedOrder.shipmentStatus,
+    };
 
-    // // Emit a notification to the user with the updated order status
-    // io.to(userId).emit('orderStatusUpdated', {
-    //     orderId: updatedOrder._id,
-    //     shipmentStatus: updatedOrder.shipmentStatus,
-    // });
+    emitOrderNotificationToConnectedUsers(orderStatusUpdated, userId);
 
-    // Display a notification on the server-side console
-    // console.log(`Order ${updatedOrder._id} status updated: ${updatedOrder.shipmentStatus}`);
+    let userIsConnected = false;
+
+    // Iterate over the values in the connectedUsers Map
+    for (const connectedUser of connectedUsers.values()) {
+        // Check if the user ID matches
+        if (connectedUser._id.toString() === userId) {
+            console.log(`User with ID ${userId} is currently connected, skipping notification storage`);
+            userIsConnected = true;
+            break; // Exit the inner loop since we found the user
+        }
+    }
+
+    // If the user is not connected, store the notification
+    if (!userIsConnected) {
+        console.log(`Notification stored for not connected user with ID: ${userId}`);
+        if (!OrdersStatus.has(userId)) {
+            OrdersStatus.set(userId, []);
+        }
+        OrdersStatus.get(userId).push(orderStatusUpdated);
+    }
 
     res.status(200).json({
         success: true,
