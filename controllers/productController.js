@@ -864,11 +864,22 @@ const getUserNotifications = asyncWrapper(async (req, res, next) => {
 
     // Fetch product details for each notification
     const productDetailsPromises = notifications.map(async (notification) => {
-        const productDetails = await Product.findById(notification.product);
-        return {
-            notificationId: notification._id,
-            productDetails
-        };
+        const productDetails = notification.product
+            ? await Product.findById(notification.product)
+            : null;
+
+        if (productDetails !== null) {
+            return {
+                notificationId: notification._id,
+                productDetails,
+                status: notification.status
+            };
+        } else {
+            return {
+                notificationId: notification._id,
+                status: notification.status
+            };
+        }
     });
 
     // Wait for all product details promises to resolve
