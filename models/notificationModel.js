@@ -8,7 +8,8 @@ const notificationSchema = new mongoose.Schema({
     },
     product: {
         type: mongoose.Schema.Types.ObjectId,
-    }
+    },
+    status: {}
 });
 
 module.exports = mongoose.model('Notification', notificationSchema);

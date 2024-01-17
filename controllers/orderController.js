@@ -4,6 +4,7 @@ const User = require('../models/userModel');
 const Payment = require('../models/paymentModel');
 // const Shipping = require('../models/shippingModel');
 const Product = require('../models/productModel')
+const Notification = require('../models/notificationModel')
 const asyncWrapper = require('../middleware/asyncWrapper');
 const { createCustomError } = require('../utils/customError');
 const { DELIVERY_FEES } = require('../constants');
@@ -237,6 +238,8 @@ const updateOrderStatus = asyncWrapper(async (req, res, next) => {
         shipmentStatus: updatedOrder.shipmentStatus,
     };
 
+    console.log(orderStatusUpdated);
+
     emitOrderNotificationToConnectedUsers(orderStatusUpdated, userId);
 
     let userIsConnected = false;
@@ -247,6 +250,13 @@ const updateOrderStatus = asyncWrapper(async (req, res, next) => {
         if (connectedUser._id.toString() === userId) {
             console.log(`User with ID ${userId} is currently connected, skipping notification storage`);
             userIsConnected = true;
+
+            const newNotification = new Notification({
+                userId: connectedUser._id,
+                status: orderStatusUpdated
+            });
+            await newNotification.save();
+
             break; // Exit the inner loop since we found the user
         }
     }

@@ -82,7 +82,7 @@ const configureSocket = (server) => {
                         });
                         await newNotification.save();
 
-                        console.log('Notifi`cation sent and saved to the database:', notification);
+                        console.log('Notification sent and saved to the database:', notification);
                     }
                     // Clear notifications after sending
                     productNotifications.delete(userIdString);
@@ -92,6 +92,15 @@ const configureSocket = (server) => {
                 if (OrderNotifications) {
                     for (const OrderNotification of OrderNotifications) {
                         socket.emit('orderStatusUpdated', OrderNotification);
+
+                        // Save notification to the Notification model
+                        const newNotification = new Notification({
+                            userId: user._id,
+                            status: OrderNotification
+                        });
+                        await newNotification.save();
+
+                        console.log('Notification sent and saved to the database:', OrderNotification);
                     }
                     // Clear notifications after sending
                     OrdersStatus.delete(userIdString);
