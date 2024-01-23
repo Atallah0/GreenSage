@@ -9,7 +9,7 @@ const asyncWrapper = require('../middleware/asyncWrapper');
 const { createCustomError } = require('../utils/customError');
 const { DELIVERY_FEES } = require('../constants');
 const mongoose = require('mongoose');
-const { getIo, connectedUsers, emitOrderNotificationToConnectedUsers, OrdersStatus } = require('../socket');
+const { connectedUsers, emitOrderNotificationToConnectedUsers, OrdersStatus } = require('../socket');
 
 
 //ToDO if cart is empty
@@ -111,6 +111,58 @@ const createOrder = asyncWrapper(async (req, res, next) => {
         data: order
     });
 });
+
+// const createPaymentIntent = asyncWrapper(async (req, res, next) => {
+//     console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+//     const { userId, card } = req.body;
+
+//     // Find the cartId based on the userId
+//     const cart = await Cart.findOne({ userId });
+
+//     if (!cart) {
+//         return next(createCustomError('Cart not found for the given user', 404));
+//     }
+
+//     // Extract necessary details from the cart
+//     const { totalPrice } = cart;
+
+//     // Calculate totalPrice by subtracting deliveryFee
+//     const adjustedTotalPrice = Number(totalPrice) + DELIVERY_FEES;
+
+//     const user = await User.findById(userId);
+
+//     const fullName = `${user.firstName} ${user.lastName}`;
+
+//     // Use the `stripe.paymentMethods.create` method to create a PaymentMethod
+//     const paymentMethod = await stripe.paymentMethods.create({
+//         type: 'card',
+//         card: {
+//             number: card.number,
+//             exp_month: card.exp_month,
+//             exp_year: card.exp_year,
+//             cvc: card.cvc,
+//         },
+//     });
+
+//     // Use the PaymentMethod to create a PaymentIntent
+//     const paymentIntent = await stripe.paymentIntents.create({
+//         amount: Math.round(adjustedTotalPrice * 100),
+//         currency: 'usd',
+//         receipt_email: user.email,
+//         description: `Payment for ${fullName}`,
+//         payment_method: paymentMethod.id,
+//         confirm: true,
+//     });
+
+//     console.log(paymentIntent);
+//     // You can send additional information in the response if needed
+//     res.json({
+//         success: true,
+//         message: 'Payment intent created successfully',
+//         clientSecret: paymentIntent.client_secret,
+//     });
+// });
+
 
 // Function to update product stock in the cart
 const updateProductStockInCart = async (orderId) => {
@@ -329,5 +381,6 @@ module.exports = {
     getOrder,
     getOrdersForUser,
     updateOrderStatus,
-    getOwnerOrders
+    getOwnerOrders,
+    // createPaymentIntent
 };

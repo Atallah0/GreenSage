@@ -865,19 +865,22 @@ const getUserNotifications = asyncWrapper(async (req, res, next) => {
     // Fetch product details for each notification
     const productDetailsPromises = notifications.map(async (notification) => {
         const productDetails = notification.product
-            ? await Product.findById(notification.product)
+            ? await Product.findById(notification.product, { ratings: 0, cartItems: 0, favorits: 0 })
             : null;
 
         if (productDetails !== null) {
             return {
                 notificationId: notification._id,
                 productDetails,
-                status: notification.status
+                type: 'Product promotion',
+                msg: 'New product created'
             };
         } else {
             return {
                 notificationId: notification._id,
-                status: notification.status
+                status: notification.status,
+                type: 'Status updated',
+                msg: `Order status changed to ${notification.status.shipmentStatus}`
             };
         }
     });
@@ -886,7 +889,7 @@ const getUserNotifications = asyncWrapper(async (req, res, next) => {
     const productDetailsResults = await Promise.all(productDetailsPromises);
 
     res.status(200).json({
-        msg: 'Notifications with Product details fetched successfully',
+        msg: 'Notifications fetched successfully',
         success: true,
         data: productDetailsResults
     });

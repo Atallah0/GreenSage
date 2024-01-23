@@ -17,6 +17,8 @@ const notFound = require('./middleware/notFound');
 const errorHandler = require('./middleware/errorHandler');
 const register = require('./utils/api/register');
 const login = require('./utils/api/login');
+const stripe = require('./stripe/stripe');
+
 
 // Routers
 const users = require('./routes/userRoutes');
@@ -40,12 +42,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
+    res.sendFile(__dirname + '/stripe.html');
 });
 
 // Routes Middleware
 app.use(register);
 app.use(login);
+app.use(stripe)
 app.use('/api/users', users);
 app.use('/api/owners', owners);
 app.use('/api/addresses', addresses);
