@@ -16,17 +16,13 @@ const stripe = require('stripe')(process.env.SECRET_KEY);
 // createOrder Endpoint/API
 const createOrder = asyncWrapper(async (req, res, next) => {
     const { id: userId } = req.params;
-    const { paymentId, shipmentStatus, userAddressIndex } = req.body;
+    const { shipmentStatus } = req.body;
 
     // console.log(userAddressIndex);
 
     // Check if the userId is a valid ObjectId
     if (!mongoose.Types.ObjectId.isValid(userId)) {
         return next(createCustomError(`Invalid userId ID: ${userId}`, 400));
-    }
-
-    if (!paymentId) {
-        return next(createCustomError('Missing required properties in the request body', 400));
     }
 
     // Find the cartId based on the userId
@@ -56,7 +52,7 @@ const createOrder = asyncWrapper(async (req, res, next) => {
     const userName = `${user.firstName} ${user.lastName}`;
 
     // Get the selected address
-    const selectedAddress = user.addresses[userAddressIndex];
+    const selectedAddress = user.addresses[0];
 
     if (cart.cartItems.length === 0) {
         return next(createCustomError(`Cart is empty`, 400))
@@ -67,7 +63,6 @@ const createOrder = asyncWrapper(async (req, res, next) => {
         userId,
         date: new Date(),
         deliveryFee: DELIVERY_FEES,
-        paymentId,
         shipmentStatus,
         userAddress: selectedAddress,
         totalPrice: adjustedTotalPrice,
