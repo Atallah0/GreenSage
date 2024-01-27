@@ -114,8 +114,8 @@ const createOrder = asyncWrapper(async (req, res, next) => {
 
 const createPaymentIntent = asyncWrapper(async (req, res, next) => {
     const { userId, country } = req.body;
-    console.log(userId);
-    console.log(country);
+    // console.log(userId);
+    // console.log(country);
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
         return next(createCustomError(`Invalid userId ID: ${userId}`, 400));
@@ -138,6 +138,14 @@ const createPaymentIntent = asyncWrapper(async (req, res, next) => {
         return next(createCustomError('User not found', 404));
     }
 
+    // // Validate userAddressIndex against the number of addresses
+    // if (userAddressIndex < 0 || userAddressIndex >= user.addresses.length) {
+    //     return next(createCustomError('Invalid userAddressIndex', 400));
+    // }
+
+    // Get the selected address
+    const selectedAddress = user.addresses[0];
+
     let stripeCustomer;
 
     if (!user.stripeCustomerId) {
@@ -156,7 +164,7 @@ const createPaymentIntent = asyncWrapper(async (req, res, next) => {
         stripeCustomer = await stripe.customers.retrieve(user.stripeCustomerId);
     }
 
-    const { firstName, lastName, email } = user;
+    const { firstName, lastName, email, mobile } = user;
     const userName = `${firstName} ${lastName}`;
 
     if (cart.cartItems.length === 0) {
@@ -169,13 +177,20 @@ const createPaymentIntent = asyncWrapper(async (req, res, next) => {
         description: 'Your purchase description',
         shipping: {
             name: userName,
+            phone: mobile,
             address: {
+                city: selectedAddress.city,
                 country,
+                line1: selectedAddress.street,
+                postal_code: selectedAddress.postalCode,
+                state: selectedAddress.state,
             },
         },
         amount: adjustedTotalPrice,
         currency: 'usd',
     });
+
+    console.log(paymentIntent);
 
     res.json({ clientSecret: paymentIntent.client_secret });
 });
