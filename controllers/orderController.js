@@ -42,12 +42,12 @@ const createOrder = asyncWrapper(async (req, res, next) => {
 
     // ------------------------------------------------------------------  errors
     const user = await User.findById(userId);
-    const payment = await Payment.findById(paymentId);
+    // const payment = await Payment.findById(paymentId);
 
     // Validate userAddressIndex against the number of addresses
-    if (userAddressIndex < 0 || userAddressIndex >= user.addresses.length) {
-        return next(createCustomError('Invalid userAddressIndex', 400));
-    }
+    // if (userAddressIndex < 0 || userAddressIndex >= user.addresses.length) {
+    //     return next(createCustomError('Invalid userAddressIndex', 400));
+    // }
 
     const userName = `${user.firstName} ${user.lastName}`;
 
@@ -82,10 +82,10 @@ const createOrder = asyncWrapper(async (req, res, next) => {
         { new: true }
     );
 
-    await payment.updateOne(
-        { $push: { orders: order._id } },
-        { new: true }
-    );
+    // await payment.updateOne(
+    //     { $push: { orders: order._id } },
+    //     { new: true }
+    // );
 
     // Clear all items from the cart
     await Cart.findByIdAndUpdate(cart._id, {

@@ -17,7 +17,7 @@ const orderSchema = new mongoose.Schema({
     paymentId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Payment',  // Reference the User model
-        required: true,
+        required: false,
     },
     shipmentStatus: {
         type: String,
