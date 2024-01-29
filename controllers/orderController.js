@@ -279,12 +279,36 @@ const getOrder = asyncWrapper(async (req, res, next) => {
 
     const order = await Order.findById(orderId);
 
-    res.status(200).json({
+    const user = await User.findById(order.userId);
+    const userEmail = user.email;
+    const userMobile = user.mobile;
+
+    // Fetch product details for each cartItem
+    const cartItemsWithProductDetails = await Promise.all(order.cartItems.map(async (item) => {
+        const product = await Product.findById(item.productId);
+        const productName = product.name;
+
+        return {
+            ...item,
+            productName
+        };
+    }));
+
+    // Update the order object with cartItems containing productName
+    order.cartItems = cartItemsWithProductDetails;
+
+    // Create a new object with the required structure
+    const responseData = {
         success: true,
         msg: 'Order fetched successfully',
-        data: order,
-    });
+        data: {
+            ...order.toObject(),
+            userEmail,
+            userMobile,
+        },
+    };
 
+    res.status(200).json(responseData);
 });
 
 // updateOrderStatus Endpoint/API

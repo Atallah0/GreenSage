@@ -42,7 +42,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/stripe.html');
+    res.sendFile(__dirname + '/index.html');
 });
 
 // Routes Middleware
