@@ -128,6 +128,10 @@ const userSchema = new mongoose.Schema({
             type: Boolean,
             default: false,
         },
+        others: {
+            type: String,
+            default: '',
+        }
     },
     description: {
         type: String,

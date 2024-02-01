@@ -676,11 +676,24 @@ const getUserRelatedProducts = asyncWrapper(async (req, res, next) => {
 
     // Build a query based on the healthStatus fields
     const healthStatusQuery = Object.keys(user.healthStatus)
-        .filter(key => user.healthStatus[key])
-        .map(key => ({ description: new RegExp(key, 'i') }));
+        .filter(key => key !== 'others' && (user.healthStatus[key] || (key === 'others' && user.healthStatus.others !== '')))
+        .map(key => {
+            if (key === 'others') {
+                const otherKeywords = user.healthStatus.others.split(',').map(keyword => keyword.trim());
+                return { description: { $regex: otherKeywords.join('|'), $options: 'i' } };
+            } else {
+                return { description: new RegExp(key, 'i') };
+            }
+        });
 
-    if (healthStatusQuery.length === 0) {
-        return res.status(200).json({ success: true, data: [] }); // No healthStatus fields selected
+    if (healthStatusQuery.length === 0 && (!user.healthStatus.others || user.healthStatus.others === '')) {
+        return res.status(200).json({ success: true, data: [] }); // Both healthStatus and others are empty
+    }
+
+    // If 'others' field is not empty, search in 'others'
+    if (user.healthStatus.others && user.healthStatus.others !== '') {
+        const otherKeywords = user.healthStatus.others.split(',').map(keyword => keyword.trim());
+        healthStatusQuery.push({ description: { $regex: otherKeywords.join('|'), $options: 'i' } });
     }
 
     // Find products matching the healthStatus criteria
