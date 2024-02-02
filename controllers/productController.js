@@ -779,29 +779,33 @@ const searchAndFilter = asyncWrapper(async (req, res, next) => {
 
     const query = {};
 
-    if (categoryName) {
-        const categoryRegex = new RegExp(categoryName, 'i');
-        const category = await Category.findOne({ name: { $regex: categoryRegex } });
+if (categoryName) {
+    const categoryRegex = new RegExp(categoryName, 'i');
+    const category = await Category.findOne({ name: { $regex: categoryRegex } });
 
-        if (category) {
-            query.categoryId = category._id;
-        } else {
-            return res.status(400).json({ success: false, msg: 'Category not found' });
-        }
+    if (category) {
+        query.categoryId = category._id;
+    } else {
+        return res.status(400).json({ success: false, msg: 'Category not found' });
     }
+}
 
-    if (productName) {
-        query.name = { $regex: productName, $options: 'i' };
+const nameRegex = productName ? new RegExp(productName, 'i') : null;
+const descriptionRegex = description ? new RegExp(description, 'i') : null;
+
+if (nameRegex || descriptionRegex) {
+    query.$or = [];
+    if (nameRegex) {
+        query.$or.push({ name: { $regex: nameRegex } });
     }
-
-    if (description) {
-        query.description = { $regex: description, $options: 'i' };
+    if (descriptionRegex) {
+        query.$or.push({ description: { $regex: descriptionRegex } });
     }
+}
 
-    if (ownerName) {
-        query.owner = { $regex: ownerName, $options: 'i' };
-    }
-
+if (ownerName) {
+    query.owner = { $regex: ownerName, $options: 'i' };
+}
     const searchResults = await Product.aggregate([
         {
             $match: query // Your existing query conditions
@@ -839,6 +843,7 @@ const searchAndFilter = asyncWrapper(async (req, res, next) => {
             }
         }
     ]);
+    console.log(searchResults);
 
     const filteredResults = applyFilterLogic(searchResults, { topRated, newAdded, featured, popular, topSelling });
 
@@ -846,7 +851,7 @@ const searchAndFilter = asyncWrapper(async (req, res, next) => {
     const totalPages = Math.ceil(totalFilteredProducts / PAGE_SIZE);
 
     const paginatedResults = filteredResults.slice(newPageOffset, newPageOffset + PAGE_SIZE);
-
+    
     if (pageNumber > totalPages) {
         return next(createCustomError('Page Number exceeds total pages', 400));
     }
