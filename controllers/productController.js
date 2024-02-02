@@ -697,7 +697,7 @@ const getUserRelatedProducts = asyncWrapper(async (req, res, next) => {
     }
 
     // Find products matching the healthStatus criteria
-    const products = await Product.find({ $or: healthStatusQuery })
+    let products = await Product.find({ $or: healthStatusQuery })
         .populate('ratings', '-ratingId -__v')
         .skip(newPageOffset)
         .limit(PAGE_SIZE)
@@ -705,9 +705,19 @@ const getUserRelatedProducts = asyncWrapper(async (req, res, next) => {
     const totalProducts = await Product.find({ $or: healthStatusQuery }).count();
     const totalPages = Math.ceil(totalProducts / PAGE_SIZE);
 
-    if (pageNumber > totalPages) {
+    if(totalProducts === 0 ){
+        products =  await Product.find()
+        .populate('ratings', '-ratingId -__v')
+        .skip(newPageOffset)
+        .limit(PAGE_SIZE)
+        
+    }else if(pageNumber > totalPages){
+  
         return next(createCustomError('Page Number exceeds total pages', 400));
+       
     }
+
+    
 
 
     // Access the virtual field 'averageRating' for each product
