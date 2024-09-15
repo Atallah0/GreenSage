@@ -245,7 +245,7 @@ const getOwner = asyncWrapper(async (req, res, next) => {
             select: '-ratingId -__v'
         });
 
-    const totalProducts = await Product.find({ owner: `${owner.firstName} ${owner.lastName}` }).count();
+    const totalProducts = await Product.countDocuments({ owner: `${owner.firstName} ${owner.lastName}` });
     const totalPages = Math.ceil(totalProducts / PAGE_SIZE);
 
     if (pageNumber > totalPages) {
