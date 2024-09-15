@@ -700,7 +700,7 @@ const getUserRelatedProducts = asyncWrapper(async (req, res, next) => {
         .skip(newPageOffset)
         .limit(PAGE_SIZE)
 
-    const totalProducts = await Product.countDocuments(query);
+    const totalProducts = await Product.countDocuments({ $or: healthStatusQuery });
     const totalPages = Math.ceil(totalProducts / PAGE_SIZE);
 
     if(totalProducts === 0 ){
