@@ -141,9 +141,9 @@ const getProducts = asyncWrapper(async (req, res, next) => {
         .populate({
             path: 'ratings',
             select: '-ratingId -__v'
-        })
+        });
 
-    const totalProducts = await Product.find({}).count();
+    const totalProducts = await Product.countDocuments({});
     const totalPages = Math.ceil(totalProducts / PAGE_SIZE);
 
     if (pageNumber > totalPages) {
@@ -191,7 +191,6 @@ const getProducts = asyncWrapper(async (req, res, next) => {
             popular: product.popular,
             topSelling: product.topSelling
         };
-
     }));
 
     res.status(200).json({
@@ -200,7 +199,6 @@ const getProducts = asyncWrapper(async (req, res, next) => {
         data: { products: productsWithDetails, totalProducts, totalPages }
     });
 });
-
 
 
 // getProduct Endpoint/API
@@ -518,7 +516,7 @@ const search = asyncWrapper(async (req, res, next) => {
         .skip(newPageOffset)
         .limit(PAGE_SIZE)
 
-    const totalProducts = await Product.find(query).count();
+    const totalProducts = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / PAGE_SIZE);
 
     if (pageNumber > totalPages) {
@@ -591,7 +589,7 @@ const filter = asyncWrapper(async (req, res, next) => {
         }).skip(newPageOffset)
         .limit(PAGE_SIZE)
 
-    const totalProducts = await Product.find(query).count();
+    const totalProducts = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / PAGE_SIZE);
 
     if (pageNumber > totalPages) {
@@ -702,7 +700,7 @@ const getUserRelatedProducts = asyncWrapper(async (req, res, next) => {
         .skip(newPageOffset)
         .limit(PAGE_SIZE)
 
-    const totalProducts = await Product.find({ $or: healthStatusQuery }).count();
+    const totalProducts = await Product.countDocuments({ $or: healthStatusQuery });
     const totalPages = Math.ceil(totalProducts / PAGE_SIZE);
 
     if(totalProducts === 0 ){
